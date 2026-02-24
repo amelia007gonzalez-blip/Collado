@@ -297,28 +297,51 @@ function ChatContent() {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#ece5dd' /* WhatsApp BG style */ }}>
                 {/* Header */}
                 <div style={{
-                    padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.08)',
+                    padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.08)',
                     background: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: 12,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)', zIndex: 10
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)', zIndex: 10, flexWrap: 'wrap'
                 }}>
-                    <div style={{
-                        width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue-primary), var(--red-primary))',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
-                    }}>
-                        <FiHash size={20} />
-                    </div>
-                    <div>
-                        <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>{activeRoom}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                            {messages.length} mensajes • Diáspora en acción
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+                        <button onClick={() => window.location.href = '/dashboard'} style={{
+                            background: 'rgba(0,45,98,0.1)', border: 'none', padding: '8px 12px',
+                            borderRadius: 8, color: 'var(--blue-primary)', cursor: 'pointer',
+                            fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4
+                        }}>
+                            🏠 Inicio
+                        </button>
+                        <div style={{ width: 1, height: 24, background: '#ddd' }} />
+                        <div style={{
+                            width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue-primary), var(--red-primary))',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
+                        }}>
+                            <FiHash size={18} />
+                        </div>
+                        <div>
+                            <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{activeRoom}</div>
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                                {messages.length} mensajes
+                            </div>
                         </div>
                     </div>
 
+                    {/* Mobile Room Selector */}
+                    <select
+                        className="show-mobile"
+                        value={activeRoom}
+                        onChange={(e) => setActiveRoom(e.target.value)}
+                        style={{
+                            padding: '6px 12px', borderRadius: 8, border: '1px solid #ddd',
+                            fontSize: 12, background: 'white', color: '#333', marginLeft: 'auto'
+                        }}
+                    >
+                        {ROOMS.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
+                    </select>
+
                     <button onClick={sendZumbido} title="Enviar Zumbido" style={{
-                        marginLeft: 'auto', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
+                        background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
                         border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 13
-                    }}>
+                        display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 12
+                    }} className="hide-mobile">
                         <FiBell size={16} /> Zumbido
                     </button>
                 </div>
@@ -479,6 +502,11 @@ function ChatContent() {
                     30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
                     40%, 60% { transform: translate3d(4px, 0, 0); }
                 }
+                @media (max-width: 768px) {
+                    .show-mobile { display: block !important; }
+                    .hide-mobile { display: none !important; }
+                }
+                .show-mobile { display: none; }
             `}</style>
         </div>
     )

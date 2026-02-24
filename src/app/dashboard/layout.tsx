@@ -39,20 +39,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setIsLoadingRadio(true)
             setIsPlayingRadio(true)
 
-            // Intentamos reproducir directamente. Si el navegador bloquea el primer intento, 
-            // el usuario ya interactuó con el botón, así que el segundo intento (load + play) debería funcionar.
+            // Re-establecemos el SRC para limpiar cualquier error previo
+            audioRef.current.src = "https://stream.zeno.fm/fvr868y9vduv"
+            audioRef.current.load()
+
             audioRef.current.play().then(() => {
                 setIsLoadingRadio(false)
-            }).catch(() => {
-                // Si falla el primer intento (muy común en Safari/Chrome móvil), reintentamos forzando carga
-                audioRef.current?.load()
-                audioRef.current?.play().then(() => {
-                    setIsLoadingRadio(false)
-                }).catch(e => {
-                    console.error("Radio final error:", e)
-                    setIsPlayingRadio(false)
-                    setIsLoadingRadio(false)
-                })
+            }).catch(e => {
+                console.error("Radio final error:", e)
+                setIsPlayingRadio(false)
+                setIsLoadingRadio(false)
             })
         }
     }
@@ -161,6 +157,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         SALAS POR PAÍS
                     </div>
                     {[
+                        { flag: '🌍', id: 'General', label: 'General' },
                         { flag: '🇪🇸', id: 'España', label: 'España' },
                         { flag: '🇫🇷', id: 'Francia', label: 'Francia' },
                         { flag: '🇮🇹', id: 'Italia', label: 'Italia' },
@@ -170,8 +167,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         { flag: '🇵🇹', id: 'Portugal', label: 'Portugal' },
                         { flag: '🇳🇱', id: 'Países Bajos', label: 'Países Bajos' },
                         { flag: '🇧🇪', id: 'Bélgica', label: 'Bélgica' },
-                        { flag: '🇨🇿', id: 'Rep. Checa', label: 'Rep. Checa' },
-                        { flag: '🌍', id: 'General', label: 'General' }
+                        { flag: '🇨🇿', id: 'Rep. Checa', label: 'Rep. Checa' }
                     ].map(r => (
                         <Link
                             key={r.id}
@@ -182,11 +178,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 padding: '9px 12px', borderRadius: 8, marginBottom: 2,
                                 textDecoration: 'none', color: 'var(--text-muted)',
                                 fontSize: 13, transition: 'all 0.2s',
+                                wordBreak: 'break-word', whiteSpace: 'normal'
                             }}
                             onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)', e.currentTarget.style.background = 'var(--bg-card)')}
                             onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)', e.currentTarget.style.background = 'transparent')}
                         >
-                            <span style={{ fontSize: 14 }}>{r.flag}</span> {r.label}
+                            <span style={{ fontSize: 14, flexShrink: 0 }}>{r.flag}</span>
+                            <span>{r.label}</span>
                         </Link>
                     ))}
                 </nav>
@@ -262,7 +260,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         width: 34, height: 34, borderRadius: '50%',
                         background: 'linear-gradient(135deg, var(--blue-primary), var(--blue-light))',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: 700, fontSize: 13, color: 'white', cursor: 'pointer'
+                        fontWeight: 700, fontSize: 13, color: 'white'
                     }}>{initials}</div>
                 </header>
 
@@ -293,8 +291,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
       `}</style>
 
-            {/* Emisora Dominicana: Disco 106.1 FM (Muy estable y música variada) */}
-            <audio ref={audioRef} src="https://stream.zeno.fm/fvr868y9vduv" preload="none" crossOrigin="anonymous" />
+            {/* Emisora Dominicana: Disco 106.1 FM (Fuerza optimizada) */}
+            <audio ref={audioRef} src="https://stream.zeno.fm/fvr868y9vduv" preload="none" />
         </div>
     )
 }
