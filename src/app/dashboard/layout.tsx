@@ -22,6 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [pathname, setPathname] = useState('')
     const [isPlayingRadio, setIsPlayingRadio] = useState(false)
+    const [isLoadingRadio, setIsLoadingRadio] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
     // No necesitamos inicializar New Audio() en el useEffect si usamos la etiqueta <audio>
@@ -33,14 +34,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         if (isPlayingRadio) {
             audioRef.current.pause()
             setIsPlayingRadio(false)
+            setIsLoadingRadio(false)
         } else {
-            // Force load the stream in case it stale
-            audioRef.current.load()
+            setIsLoadingRadio(true)
+            setIsPlayingRadio(true) // Reacción inmediata visual
+
+            // Usamos un pequeño delay para asegurar el estado visual antes de la carga pesada
             audioRef.current.play().then(() => {
-                setIsPlayingRadio(true)
+                setIsLoadingRadio(false)
             }).catch(e => {
                 console.error("Radio play error:", e)
                 setIsPlayingRadio(false)
+                setIsLoadingRadio(false)
+                alert("La emisora está temporalmente fuera de servicio o tu navegador bloqueó el audio. Intenta de nuevo.")
             })
         }
     }
@@ -216,18 +222,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </button>
 
                     <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
-                        background: isPlayingRadio ? 'rgba(239, 68, 68, 0.15)' : 'rgba(0,0,0,0.05)',
-                        border: isPlayingRadio ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
-                        color: isPlayingRadio ? '#ef4444' : 'var(--text-secondary)',
-                        padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13,
+                        background: isPlayingRadio ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.1)',
+                        border: isPlayingRadio ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.2)',
+                        color: isPlayingRadio ? '#ef4444' : 'white',
+                        padding: '8px 16px', borderRadius: 24, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 13,
                         transition: 'all 0.3s',
-                        boxShadow: isPlayingRadio ? '0 0 10px rgba(239, 68, 68, 0.5)' : 'none',
+                        boxShadow: isPlayingRadio ? '0 0 15px rgba(239, 68, 68, 0.4)' : 'none',
                     }}
                         className={isPlayingRadio ? "radio-playing" : ""}
                     >
-                        {isPlayingRadio ? <FiPauseCircle size={18} className="animate-spin-slow" /> : <FiPlayCircle size={18} />}
-                        <span className="hide-mobile">{isPlayingRadio ? 'ON AIR 🔴' : 'Radio 🇩🇴'}</span>
+                        {isLoadingRadio ? (
+                            <div className="animate-spin-slow" style={{ width: 18, height: 18, border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                        ) : (
+                            isPlayingRadio ? <FiPauseCircle size={20} /> : <FiPlayCircle size={20} />
+                        )}
+                        <span>{isLoadingRadio ? 'CARGANDO...' : (isPlayingRadio ? 'EN VIVO 🔴' : 'RADIO 🇩🇴')}</span>
                     </button>
 
                     <button onClick={handleLogout} style={{
@@ -277,8 +287,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
       `}</style>
 
-            {/* Emisora: Disco 106 (RD) - Muy segura y estable por HTTPS */}
-            <audio ref={audioRef} src="https://stream.zeno.fm/fvr868y9vduv" preload="none" crossOrigin="anonymous" />
+            {/* Emisora: Z Digital 101.3 - Una de las más potentes de RD */}
+            <audio ref={audioRef} src="https://stream.zeno.fm/54cwb997s8ruv" preload="none" />
         </div>
     )
 }
