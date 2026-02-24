@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+export const dynamic = 'force-dynamic'
 import { supabase } from '@/lib/supabase'
 import { FiRadio, FiExternalLink, FiClock, FiPlus } from 'react-icons/fi'
 import toast from 'react-hot-toast'
