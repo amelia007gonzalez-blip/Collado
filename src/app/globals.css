@@ -346,6 +346,23 @@ body {
   overflow: hidden;
 }
 
+.sidebar nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb {
+  background: rgba(0, 45, 98, 0.2);
+  border-radius: 10px;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb:hover {
+  background: var(--blue-primary);
+}
+
 .main-content {
   margin-left: 280px;
   flex: 1;
