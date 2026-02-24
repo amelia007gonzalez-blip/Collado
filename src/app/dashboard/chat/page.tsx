@@ -44,6 +44,7 @@ function ChatContent() {
     const [uploadingImage, setUploadingImage] = useState(false)
     const [showEmojis, setShowEmojis] = useState(false)
     const [isShaking, setIsShaking] = useState(false)
+    const [greetedRooms, setGreetedRooms] = useState<Set<string>>(new Set())
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const bottomRef = useRef<HTMLDivElement>(null)
@@ -101,11 +102,12 @@ function ChatContent() {
         if (data) {
             setMessages(data)
             // Lanza los bots si hay pocos mensajes para que no se vea vacío
-            if (data.length < 2) {
+            if (data.length < 2 && !greetedRooms.has(activeRoom)) {
                 loadCollaborators(activeRoom, data);
+                setGreetedRooms(prev => new Set(prev).add(activeRoom));
             }
         }
-    }, [activeRoom, loadCollaborators])
+    }, [activeRoom, loadCollaborators, greetedRooms])
 
     useEffect(() => {
         loadMessages()

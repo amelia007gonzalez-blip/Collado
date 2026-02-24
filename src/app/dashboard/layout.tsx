@@ -24,8 +24,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [isPlayingRadio, setIsPlayingRadio] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
-    // Eliminamos el new Audio() del useEffect para usar un elemento nativo del DOM
-    // que es mucho más compatible con las políticas de navegación móvil.
+    // No necesitamos inicializar New Audio() en el useEffect si usamos la etiqueta <audio>
+    // Esto evita duplicidad y conflictos de recursos en el navegador.
 
     const toggleRadio = () => {
         if (!audioRef.current) return
@@ -277,8 +277,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
       `}</style>
 
-            {/* Elemento de Radio Nativo, mejor soportado por todos los navegadores */}
-            <audio ref={audioRef} src="https://stream.zeno.fm/54cwb997s8ruv" preload="none" crossOrigin="anonymous" />
-        </div >
+            {/* Emisora: Disco 106 (RD) - Muy segura y estable por HTTPS */}
+            <audio ref={audioRef} src="https://stream.zeno.fm/fvr868y9vduv" preload="none" crossOrigin="anonymous" />
+        </div>
     )
 }
