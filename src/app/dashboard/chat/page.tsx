@@ -370,6 +370,37 @@ function ChatContent() {
                         </div>
                     )}
 
+                    {/* Banner de @Colladin - IA Conectada */}
+                    <div style={{
+                        background: 'linear-gradient(90deg, #eff6ff 0%, #ffffff 100%)',
+                        padding: '10px 20px',
+                        borderBottom: '1px solid #dbeafe',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 15,
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            width: 42, height: 42, borderRadius: '50%', background: '#10b981',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: 'white', boxShadow: '0 0 10px rgba(16, 185, 129, 0.3)', flexShrink: 0
+                        }}>
+                            <FiSmile size={24} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 12, fontWeight: 800, color: '#065f46', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                🤖 ASISTENTE VIRTUAL: @COLLADIN <span style={{ fontSize: 9, background: '#10b981', color: 'white', padding: '1px 5px', borderRadius: 4 }}>ONLINE</span>
+                            </div>
+                            <div style={{ fontSize: 11, color: '#047857', marginTop: 2 }}>
+                                Pregúntame sobre <b>turismo, política, JCE, o David Collado</b> mencionándome. Ej: <i>"@Colladin ¿cuáles son los logros en turismo?"</i>
+                            </div>
+                        </div>
+                        <div style={{ position: 'absolute', right: -10, top: -10, opacity: 0.05 }}>
+                            <FiSmile size={80} />
+                        </div>
+                    </div>
+
                     {/* Messages */}
                     <div style={{
                         flex: 1, overflowY: 'auto', padding: '24px',
