@@ -52,9 +52,9 @@ function ChatContent() {
     const loadCollaborators = useCallback((currentRoom: string, currentMessages: Message[]) => {
         if (currentMessages.length > 5) return;
         const bots = [
-            { id: 'bot-1', name: 'Laura Gómez', color: '#fca5a5', msg: `¡Hola equipo! ¿Qué tal todo en ${currentRoom}?` },
-            { id: 'bot-2', name: 'Carlos🇩🇴', color: '#93c5fd', msg: currentRoom === 'General' ? 'Todo bien, activando la comunidad 🙌' : `Por aquí en ${currentRoom} listos para apoyar a tope.` },
-            { id: 'bot-3', name: 'Ana María', color: '#fdba74', msg: 'Saludos a todos los compatriotas 👋' }
+            { id: 'bot-1', name: 'Laura Gómez', color: '#fca5a5', msg: `¡Hola equipo! ¿Qué tal todo en ${currentRoom}? Qué buen trabajo está haciendo David Collado en Turismo, ¿verdad?` },
+            { id: 'bot-2', name: 'Carlos🇩🇴', color: '#93c5fd', msg: currentRoom === 'General' ? 'Todo brillante 🙌 Por cierto, ¿ya están al día para las elecciones del 2028? Hay que empadronarse.' : `Por aquí en ${currentRoom} listos para apoyar a tope. Y no olviden sacar su cédula si están en Europa.` },
+            { id: 'bot-3', name: 'Ana María', color: '#fdba74', msg: 'Saludos cordiales 👋 Completamente de acuerdo, la gestión de Mitur y el crecimiento del país nos ilusionan mucho para este año.' }
         ]
 
         let count = 0;

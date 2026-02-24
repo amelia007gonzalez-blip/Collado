@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { FiMail, FiLock, FiUser, FiGlobe, FiArrowRight } from 'react-icons/fi'
+import confetti from 'canvas-confetti'
 
 const EUROPEAN_COUNTRIES = [
     'España', 'Francia', 'Italia', 'Alemania', 'Portugal',
@@ -38,7 +39,18 @@ export default function RegisterPage() {
             toast.error(error.message)
         } else {
             toast.success('¡Cuenta creada! Revisa tu correo para confirmar.')
-            router.push('/dashboard')
+
+            // Disparar confeti de celebración
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#002D62', '#CE1126', '#FFFFFF'] // Colores de la bandera dominicana
+            })
+
+            setTimeout(() => {
+                router.push('/dashboard')
+            }, 1500)
         }
         setLoading(false)
     }
