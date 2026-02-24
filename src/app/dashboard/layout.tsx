@@ -23,6 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [pathname, setPathname] = useState('')
     const [isPlayingRadio, setIsPlayingRadio] = useState(false)
     const [isLoadingRadio, setIsLoadingRadio] = useState(false)
+    const [radioError, setRadioError] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
     // No necesitamos inicializar New Audio() en el useEffect si usamos la etiqueta <audio>
@@ -33,22 +34,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         if (isPlayingRadio) {
             audioRef.current.pause()
-            setIsPlayingRadio(false)
-            setIsLoadingRadio(false)
+            // El estado se actualizará mediante los eventos onPlay/onPause del elemento <audio>
         } else {
+            setRadioError(false)
             setIsLoadingRadio(true)
             setIsPlayingRadio(true)
 
-            // Re-establecemos el SRC para limpiar cualquier error previo
-            audioRef.current.src = "https://stream.zeno.fm/fvr868y9vduv"
+            // Intentamos primero con Z 101 Digital (Muy estable)
+            const primaryStream = "https://streaming.z101digital.com/z101"
+            const fallbackStream = "https://stream.zeno.fm/937f4a4c-dc94-4714-96ed-15fed55b237f" // Disco 106
+
+            audioRef.current.src = primaryStream
             audioRef.current.load()
 
-            audioRef.current.play().then(() => {
-                setIsLoadingRadio(false)
-            }).catch(e => {
-                console.error("Radio final error:", e)
-                setIsPlayingRadio(false)
-                setIsLoadingRadio(false)
+            audioRef.current.play().catch(e => {
+                console.warn("Primary stream failed, trying fallback...", e)
+                if (audioRef.current) {
+                    audioRef.current.src = fallbackStream
+                    audioRef.current.load()
+                    audioRef.current.play().catch(err => {
+                        console.error("All streams failed", err)
+                        setRadioError(true)
+                        setIsPlayingRadio(false)
+                        setIsLoadingRadio(false)
+                    })
+                }
             })
         }
     }
@@ -241,7 +251,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         ) : (
                             isPlayingRadio ? <FiPauseCircle size={20} /> : <FiPlayCircle size={20} />
                         )}
-                        <span>{isLoadingRadio ? 'CARGANDO...' : (isPlayingRadio ? 'EN VIVO 🔴' : 'RADIO 🇩🇴')}</span>
+                        <span>
+                            {isLoadingRadio ? 'CONECTANDO...' : (isPlayingRadio ? 'EN VIVO 🔴' : 'RADIO 🇩🇴')}
+                        </span>
+                        {radioError && !isPlayingRadio && <span style={{ fontSize: 9, color: '#ffaaaa', marginLeft: 4 }}>Error de conexión</span>}
                     </button>
 
                     <button onClick={handleLogout} style={{
@@ -291,8 +304,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
       `}</style>
 
-            {/* Emisora Dominicana: Disco 106.1 FM (Fuerza optimizada) */}
-            <audio ref={audioRef} src="https://stream.zeno.fm/fvr868y9vduv" preload="none" />
+            {/* Emisoras dominicanas de alta disponibilidad */}
+            <audio
+                ref={audioRef}
+                onPlay={() => setIsPlayingRadio(true)}
+                onPause={() => setIsPlayingRadio(false)}
+                onPlaying={() => setIsLoadingRadio(false)}
+                onWaiting={() => setIsLoadingRadio(true)}
+                onError={() => {
+                    // No hacemos nada aquí porque ya lo manejamos en el catch del play
+                    // pero evitamos que el navegador se queje.
+                }}
+                preload="none"
+            />
         </div>
     )
 }
