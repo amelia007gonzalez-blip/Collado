@@ -22,7 +22,12 @@ const ROOMS = [
     { id: 'Francia', label: '🇫🇷 Francia' },
     { id: 'Italia', label: '🇮🇹 Italia' },
     { id: 'Alemania', label: '🇩🇪 Alemania' },
+    { id: 'Suiza', label: '🇨🇭 Suiza' },
+    { id: 'Reino Unido', label: '🇬🇧 Reino Unido' },
     { id: 'Portugal', label: '🇵🇹 Portugal' },
+    { id: 'Países Bajos', label: '🇳🇱 Países Bajos' },
+    { id: 'Bélgica', label: '🇧🇪 Bélgica' },
+    { id: 'Rep. Checa', label: '🇨🇿 Rep. Checa' },
     { id: 'Noticias', label: '📰 Noticias' },
     { id: 'Eventos', label: '📅 Eventos' },
 ]

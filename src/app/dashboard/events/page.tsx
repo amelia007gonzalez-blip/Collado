@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { FiCalendar, FiMapPin, FiClock, FiPlus, FiUsers } from 'react-icons/fi'
+import { FiCalendar, FiMapPin, FiClock, FiPlus, FiUsers, FiArrowLeft } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 
 interface Event {
@@ -20,34 +20,35 @@ interface Event {
 
 const SAMPLE_EVENTS: Event[] = [
     {
-        id: '1', title: 'Gran Encuentro Dominicano en Madrid',
-        description: 'Reunión de la comunidad dominicana en Madrid para debatir propuestas de apoyo a David Collado y fortalecer nuestra red. Habrá comida dominicana, música y más.',
-        location: 'Centro Cultural Dominicano, Calle Gran Vía 45', country: 'España',
-        event_date: '2025-03-15', event_time: '18:00', attendees: 87, created_at: new Date().toISOString(),
+        id: '1', title: 'Roadshow Mitur: Descubre República Dominicana en Londres',
+        description: 'El Ministerio de Turismo (Mitur) presentará las nuevas ofertas turísticas y oportunidades de inversión en RD a miembros de la diáspora e inversionistas en la capital inglesa.',
+        location: 'Hotel The Savoy', city: 'Londres', country: 'Reino Unido', contact_info: 'eventos@mitur.gob.do',
+        event_date: '2025-06-15', event_time: '18:00', attendees: 345, created_at: new Date().toISOString(),
     },
     {
-        id: '2', title: 'Webinar: Dominicanos en Europa – Visión 2028',
-        description: 'Sesión virtual donde líderes de la comunidad presentarán propuestas para integrar la voz de los dominicanos en el exterior en el proyecto de David Collado.',
-        location: 'En línea (Zoom)', country: 'Europa',
-        event_date: '2025-03-22', event_time: '20:00', attendees: 234, created_at: new Date().toISOString(),
+        id: '2', title: 'Feria Internacional de Turismo (FITUR 2026)',
+        description: 'Acompaña a la delegación dominicana, liderada por David Collado, en el evento de turismo más importante de Iberoamérica. Ven al stand de RD a conocer nuestra cultura.',
+        location: 'IFEMA Madrid (Stand de República Dominicana)', city: 'Madrid', country: 'España', contact_info: 'info@fituronline.com o +34 91 722 30 00',
+        event_date: '2026-01-21', event_time: '10:00', attendees: 1250, created_at: new Date(Date.now() - 86400000).toISOString(),
     },
     {
-        id: '3', title: 'Cena de Gala Dominicana – París',
-        description: 'Cena de gala para recaudar fondos y apoyar las iniciativas de la comunidad dominicana en Francia. Vestimenta formal. Cupos limitados.',
-        location: 'Hotel Le Marais, París', country: 'Francia',
-        event_date: '2025-04-05', event_time: '19:30', attendees: 45, created_at: new Date().toISOString(),
+        id: '3', title: 'Encuentro Diáspora Suiza con autoridades de Turismo',
+        description: 'Reunión oficial de la comunidad dominicana en Suiza para discutir sobre conectividad aérea directa desde Zúrich y nuevas inversiones turísticas apoyadas por la presidencia.',
+        location: 'Marriott Hotel, Neumühlequai 42', city: 'Zúrich', country: 'Suiza', contact_info: 'consuladordenzurich@gmail.com',
+        event_date: '2025-09-10', event_time: '19:00', attendees: 180, created_at: new Date(Date.now() - 172800000).toISOString(),
     },
     {
-        id: '4', title: 'Festival Dominicano – Milán',
-        description: 'Celebración cultural con música típica dominicana, gastronomía, danzas y actividades para toda la familia en el corazón de Milán.',
-        location: 'Parque Sempione, Milán', country: 'Italia',
-        event_date: '2025-04-19', event_time: '12:00', attendees: 120, created_at: new Date().toISOString(),
+        id: '4', title: 'Noche Dominicana en Berlín (ITB Berlin)',
+        description: 'La feria líder mundial de la industria turística abre sus puertas. Únete a la "Noche de Merengue y Sabor" que ofrecerá Mitur en su pabellón latino.',
+        location: 'Messe Berlin (Hub27)', city: 'Berlín', country: 'Alemania', contact_info: 'frankfurt@mitur.gob.do',
+        event_date: '2026-03-03', event_time: '19:30', attendees: 410, created_at: new Date(Date.now() - 259200000).toISOString(),
     },
 ]
 
 const COUNTRY_FLAGS: Record<string, string> = {
-    España: '🇪🇸', Francia: '🇫🇷', Italia: '🇮🇹', Alemania: '🇩🇪',
-    Portugal: '🇵🇹', Europa: '🌍', Otro: '🌐'
+    'España': '🇪🇸', 'Francia': '🇫🇷', 'Italia': '🇮🇹', 'Alemania': '🇩🇪',
+    'Suiza': '🇨🇭', 'Reino Unido': '🇬🇧', 'Portugal': '🇵🇹', 'Países Bajos': '🇳🇱',
+    'Bélgica': '🇧🇪', 'Rep. Checa': '🇨🇿', 'Europa': '🌍', 'Otro': '🌐'
 }
 
 export default function EventsPage() {
@@ -63,7 +64,11 @@ export default function EventsPage() {
     useEffect(() => {
         const fetch = async () => {
             const { data } = await supabase.from('events').select('*').order('event_date').limit(20)
-            if (data && data.length > 0) setEvents(data)
+            if (data && data.length > 0) {
+                setEvents(data)
+            } else {
+                setEvents(SAMPLE_EVENTS)
+            }
             setLoading(false)
         }
         fetch()
@@ -109,9 +114,14 @@ export default function EventsPage() {
                         Próximos encuentros de la comunidad dominicana en Europa
                     </p>
                 </div>
-                <button onClick={() => setShowForm(!showForm)} className="btn btn-primary">
-                    <FiPlus /> Crear evento
-                </button>
+                <div style={{ display: 'flex', gap: 12 }}>
+                    <button onClick={() => window.history.back()} className="btn btn-ghost" style={{ padding: '0 16px' }}>
+                        Volver
+                    </button>
+                    <button onClick={() => setShowForm(!showForm)} className="btn btn-primary">
+                        <FiPlus /> Crear
+                    </button>
+                </div>
             </div>
 
             {/* Create form */}
@@ -215,20 +225,20 @@ export default function EventsPage() {
                                         <p style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: 1.6, marginBottom: 14 }}>
                                             {event.description}
                                         </p>
-                                        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
-                                                <FiMapPin size={13} /> {event.location} {event.city ? `(${event.city})` : ''}
+                                        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginTop: 16 }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, background: 'rgba(0,0,0,0.03)', padding: '4px 10px', borderRadius: 8 }}>
+                                                <FiMapPin size={14} color="#ef4444" /> {event.location} {event.city ? `(${event.city})` : ''}
                                             </span>
                                             {event.contact_info && (
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
-                                                    Contacto: {event.contact_info}
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, background: 'rgba(0,0,0,0.03)', padding: '4px 10px', borderRadius: 8 }}>
+                                                    Contacto: <strong style={{ color: '#60a5fa' }}>{event.contact_info}</strong>
                                                 </span>
                                             )}
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
-                                                <FiClock size={13} /> {event.event_time}
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, background: 'rgba(0,0,0,0.03)', padding: '4px 10px', borderRadius: 8 }}>
+                                                <FiClock size={14} color="#f59e0b" /> {event.event_time}
                                             </span>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
-                                                <FiUsers size={13} /> {event.attendees} asistentes
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, background: 'rgba(0,0,0,0.03)', padding: '4px 10px', borderRadius: 8 }}>
+                                                <FiUsers size={14} color="#10b981" /> {event.attendees} asistentes confirmados
                                             </span>
                                         </div>
                                     </div>

@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         } else {
             audioRef.current.play().then(() => setIsPlayingRadio(true)).catch(e => {
                 console.error("Radio play error:", e)
-                alert("Debes interactuar primero con la página para poder reproducir la radio (política del navegador).");
+                setIsPlayingRadio(false)
             })
         }
     }
@@ -140,10 +140,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1, padding: '16px 8px 8px', marginTop: 8 }}>
                         SALAS POR PAÍS
                     </div>
-                    {['🇪🇸 España', '🇫🇷 Francia', '🇮🇹 Italia', '🇩🇪 Alemania', '🇵🇹 Portugal', '🌍 General'].map(country => (
+                    {[
+                        { flag: '🇪🇸', id: 'España', label: 'España' },
+                        { flag: '🇫🇷', id: 'Francia', label: 'Francia' },
+                        { flag: '🇮🇹', id: 'Italia', label: 'Italia' },
+                        { flag: '🇩🇪', id: 'Alemania', label: 'Alemania' },
+                        { flag: '🇨🇭', id: 'Suiza', label: 'Suiza' },
+                        { flag: '🇬🇧', id: 'Reino Unido', label: 'Reino Unido' },
+                        { flag: '🇵🇹', id: 'Portugal', label: 'Portugal' },
+                        { flag: '🇳🇱', id: 'Países Bajos', label: 'Países Bajos' },
+                        { flag: '🇧🇪', id: 'Bélgica', label: 'Bélgica' },
+                        { flag: '🇨🇿', id: 'Rep. Checa', label: 'Rep. Checa' },
+                        { flag: '🌍', id: 'General', label: 'General' }
+                    ].map(r => (
                         <Link
-                            key={country}
-                            href={`/dashboard/chat?room=${encodeURIComponent(country)}`}
+                            key={r.id}
+                            href={`/dashboard/chat?room=${encodeURIComponent(r.id)}`}
                             onClick={() => setSidebarOpen(false)}
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 10,
@@ -154,7 +166,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)', e.currentTarget.style.background = 'var(--bg-card)')}
                             onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)', e.currentTarget.style.background = 'transparent')}
                         >
-                            <FiGlobe size={14} /> {country}
+                            <span style={{ fontSize: 14 }}>{r.flag}</span> {r.label}
                         </Link>
                     ))}
                 </nav>
