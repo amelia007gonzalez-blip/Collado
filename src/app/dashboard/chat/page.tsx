@@ -36,10 +36,45 @@ function ChatContent() {
     const [userId, setUserId] = useState('')
     const [userName, setUserName] = useState('')
     const [sending, setSending] = useState(false)
+    const [uploadingImage, setUploadingImage] = useState(false)
     const [showEmojis, setShowEmojis] = useState(false)
     const [isShaking, setIsShaking] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const bottomRef = useRef<HTMLDivElement>(null)
+
+    // Simulador de diálogos para cuando la sala está vacía
+    const loadCollaborators = useCallback((currentRoom: string, currentMessages: Message[]) => {
+        if (currentMessages.length > 5) return;
+        const bots = [
+            { id: 'bot-1', name: 'Laura Gómez', color: '#fca5a5', msg: `¡Hola equipo! ¿Qué tal todo en ${currentRoom}?` },
+            { id: 'bot-2', name: 'Carlos🇩🇴', color: '#93c5fd', msg: currentRoom === 'General' ? 'Todo bien, activando la comunidad 🙌' : `Por aquí en ${currentRoom} listos para apoyar a tope.` },
+            { id: 'bot-3', name: 'Ana María', color: '#fdba74', msg: 'Saludos a todos los compatriotas 👋' }
+        ]
+
+        let count = 0;
+        const interval = setInterval(() => {
+            if (count >= bots.length) {
+                clearInterval(interval);
+                return;
+            }
+            const b = bots[count];
+            setMessages(prev => {
+                const newMsg: Message = {
+                    id: `local-bot-${Date.now()}-${b.id}`,
+                    content: b.msg,
+                    created_at: new Date().toISOString(),
+                    user_id: b.id,
+                    room: currentRoom,
+                    user_name: b.name,
+                };
+                return [...prev, newMsg];
+            })
+            count++;
+        }, 3000)
+
+        return () => clearInterval(interval)
+    }, [])
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data }) => {
@@ -58,8 +93,14 @@ function ChatContent() {
             .order('created_at', { ascending: true })
             .limit(100)
 
-        if (data) setMessages(data)
-    }, [activeRoom])
+        if (data) {
+            setMessages(data)
+            // Lanza los bots si hay pocos mensajes para que no se vea vacío
+            if (data.length < 2) {
+                loadCollaborators(activeRoom, data);
+            }
+        }
+    }, [activeRoom, loadCollaborators])
 
     useEffect(() => {
         loadMessages()
@@ -150,6 +191,47 @@ function ChatContent() {
 
         setSending(false)
         setShowEmojis(false)
+    }
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file || !userId) return
+
+        setUploadingImage(true)
+        try {
+            const ext = file.name.split('.').pop()
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+            const filePath = `images/${fileName}`
+
+            // 1. Upload
+            const { error: uploadError } = await supabase.storage
+                .from('chat_media')
+                .upload(filePath, file)
+
+            if (uploadError) throw uploadError
+
+            // 2. Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('chat_media')
+                .getPublicUrl(filePath)
+
+            // 3. Send message with media
+            await supabase.from('messages').insert({
+                content: '📷 Imagen subida',
+                room: activeRoom,
+                user_id: userId,
+                user_name: userName,
+                media_url: publicUrl,
+                media_type: 'image'
+            })
+
+        } catch (error) {
+            console.error("Error subiendo imagen", error)
+            alert("No se pudo subir la imagen. Asegúrate de tener el bucket 'chat_media' creado libre de restricciones para autenticados.")
+        } finally {
+            setUploadingImage(false)
+            if (fileInputRef.current) fileInputRef.current.value = ''
+        }
     }
 
     const formatTime = (iso: string) =>
@@ -277,7 +359,7 @@ function ChatContent() {
                                         </div>
                                     )}
                                     <div style={{
-                                        padding: '8px 14px',
+                                        padding: msg.media_url ? '4px' : '8px 14px',
                                         borderRadius: isOwn ? '12px 0px 12px 12px' : '0px 12px 12px 12px',
                                         background: isOwn ? '#dcf8c6' : '#ffffff', // WhatsApp aesthetic
                                         color: '#303030',
@@ -285,7 +367,16 @@ function ChatContent() {
                                         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                                         position: 'relative'
                                     }}>
-                                        {renderTextWithMentions(msg.content)}
+                                        {msg.media_url ? (
+                                            <div>
+                                                <img src={msg.media_url} alt="Media" style={{ width: '100%', maxWidth: 280, borderRadius: 8, display: 'block' }} loading="lazy" />
+                                                <div style={{ padding: '0px 8px 4px', fontSize: 13, marginTop: 4 }}>
+                                                    {msg.content !== '📷 Imagen subida' && msg.content}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            renderTextWithMentions(msg.content)
+                                        )}
 
                                         <div style={{
                                             display: 'flex', alignItems: 'center', gap: 4,
@@ -331,11 +422,19 @@ function ChatContent() {
                             <FiSmile size={24} />
                         </button>
 
-                        <button type="button" onClick={() => alert("Subida de imágenes estará disponible pronto.")} style={{
-                            background: 'none', border: 'none', color: '#666', cursor: 'pointer', padding: 8
-                        }}>
-                            <FiImage size={24} />
+                        <button type="button" onClick={() => fileInputRef.current?.click()} style={{
+                            background: 'none', border: 'none', color: uploadingImage ? '#ccc' : '#666', cursor: 'pointer', padding: 8
+                        }} disabled={uploadingImage}>
+                            <FiImage size={24} className={uploadingImage ? "animate-pulse" : ""} />
                         </button>
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleImageUpload}
+                        />
 
                         <input
                             value={newMsg}

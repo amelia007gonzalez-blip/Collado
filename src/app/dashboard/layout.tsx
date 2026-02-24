@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -22,15 +22,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [pathname, setPathname] = useState('')
     const [isPlayingRadio, setIsPlayingRadio] = useState(false)
-    const radioRef = typeof window !== 'undefined' ? document.getElementById('global-radio') as HTMLAudioElement : null
+    const audioRef = useRef<HTMLAudioElement | null>(null)
 
     const toggleRadio = () => {
-        if (!radioRef) return
+        if (!audioRef.current) return
         if (isPlayingRadio) {
-            radioRef.pause()
+            audioRef.current.pause()
             setIsPlayingRadio(false)
         } else {
-            radioRef.play().then(() => setIsPlayingRadio(true)).catch(e => console.error("Radio play error:", e))
+            audioRef.current.play().then(() => setIsPlayingRadio(true)).catch(e => {
+                console.error("Radio play error:", e)
+                alert("Debes interactuar primero con la página para poder reproducir la radio (política del navegador).");
+            })
         }
     }
 
@@ -193,15 +196,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </button>
 
                     <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
-                        background: isPlayingRadio ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.05)',
-                        border: isPlayingRadio ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
-                        color: isPlayingRadio ? '#10b981' : 'var(--text-secondary)',
+                        background: isPlayingRadio ? 'rgba(239, 68, 68, 0.15)' : 'rgba(0,0,0,0.05)',
+                        border: isPlayingRadio ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid transparent',
+                        color: isPlayingRadio ? '#ef4444' : 'var(--text-secondary)',
                         padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 13,
-                        transition: 'all 0.2s'
-                    }}>
-                        {isPlayingRadio ? <FiPauseCircle size={16} className="animate-pulse" /> : <FiPlayCircle size={16} />}
-                        <span className="hide-mobile">Radio 🇩🇴</span>
+                        display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13,
+                        transition: 'all 0.3s',
+                        boxShadow: isPlayingRadio ? '0 0 10px rgba(239, 68, 68, 0.5)' : 'none',
+                    }}
+                        className={isPlayingRadio ? "radio-playing" : ""}
+                    >
+                        {isPlayingRadio ? <FiPauseCircle size={18} className="animate-spin-slow" /> : <FiPlayCircle size={18} />}
+                        <span className="hide-mobile">{isPlayingRadio ? 'ON AIR 🔴' : 'Radio 🇩🇴'}</span>
                     </button>
 
                     <button onClick={handleLogout} style={{
@@ -234,10 +240,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           .close-sidebar { display: block !important; }
           .hide-mobile { display: none !important; }
         }
+        .radio-playing {
+            animation: pulse-radio 2s infinite;
+        }
+        @keyframes pulse-radio {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .animate-spin-slow {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
       `}</style>
 
             {/* Global Radio Audio Element */}
-            <audio id="global-radio" src="https://stream.zeno.fm/54cwb997s8ruv" preload="none" />
+            <audio ref={audioRef} src="https://stream.zeno.fm/54cwb997s8ruv" preload="none" />
         </div>
     )
 }
