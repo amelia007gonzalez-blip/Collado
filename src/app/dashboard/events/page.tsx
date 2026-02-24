@@ -9,7 +9,9 @@ interface Event {
     title: string
     description: string
     location: string
+    city?: string
     country: string
+    contact_info?: string
     event_date: string
     event_time: string
     attendees: number
@@ -54,7 +56,7 @@ export default function EventsPage() {
     const [showForm, setShowForm] = useState(false)
     const [joining, setJoining] = useState<string | null>(null)
     const [form, setForm] = useState({
-        title: '', description: '', location: '', country: 'España',
+        title: '', description: '', location: '', city: '', contact_info: '', country: 'España',
         event_date: '', event_time: '18:00'
     })
 
@@ -123,11 +125,16 @@ export default function EventsPage() {
                             <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
                                 placeholder="Descripción..." className="input" rows={3} style={{ resize: 'vertical' }} />
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                <input value={form.country} onChange={e => setForm({ ...form, country: e.target.value })}
+                                    placeholder="País" className="input" required />
+                                <input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })}
+                                    placeholder="Ciudad" className="input" required />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                                 <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })}
-                                    placeholder="Lugar / Link" className="input" required />
-                                <select value={form.country} onChange={e => setForm({ ...form, country: e.target.value })} className="input">
-                                    {['España', 'Francia', 'Italia', 'Alemania', 'Portugal', 'Europa', 'Otro'].map(c => <option key={c}>{c}</option>)}
-                                </select>
+                                    placeholder="Ubicación exacta / Link" className="input" required />
+                                <input value={form.contact_info} onChange={e => setForm({ ...form, contact_info: e.target.value })}
+                                    placeholder="Forma de contacto (Email/Tel)" className="input" required />
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                                 <input type="date" value={form.event_date} onChange={e => setForm({ ...form, event_date: e.target.value })}
@@ -210,8 +217,13 @@ export default function EventsPage() {
                                         </p>
                                         <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
                                             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
-                                                <FiMapPin size={13} /> {event.location}
+                                                <FiMapPin size={13} /> {event.location} {event.city ? `(${event.city})` : ''}
                                             </span>
+                                            {event.contact_info && (
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
+                                                    Contacto: {event.contact_info}
+                                                </span>
+                                            )}
                                             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)' }}>
                                                 <FiClock size={13} /> {event.event_time}
                                             </span>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { FiMessageCircle, FiCalendar, FiRadio, FiUsers, FiTrendingUp, FiArrowRight } from 'react-icons/fi'
+import { FiMessageCircle, FiCalendar, FiRadio, FiUsers, FiTrendingUp, FiArrowRight, FiShield } from 'react-icons/fi'
 
 export default function DashboardHome() {
     const [user, setUser] = useState<{ user_metadata?: Record<string, string> } | null>(null)
@@ -91,6 +91,34 @@ export default function DashboardHome() {
                         </div>
                     </Link>
                 ))}
+            </div>
+
+            {/* Community Rules */}
+            <div style={{
+                background: 'var(--bg-secondary)', padding: 24, borderRadius: 16,
+                border: '1px solid var(--border)', marginBottom: 32
+            }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <FiShield color="var(--blue-primary)" /> Reglas de Convivencia y Respeto
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+                    <div style={{ padding: 16, background: 'var(--bg-primary)', borderRadius: 12, border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                        <div style={{ fontWeight: 600, color: '#ef4444', marginBottom: 4 }}>1. Cero Insultos</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Mantenemos el respeto mutuo. Las faltas de respeto conllevan baneo.</div>
+                    </div>
+                    <div style={{ padding: 16, background: 'var(--bg-primary)', borderRadius: 12, border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                        <div style={{ fontWeight: 600, color: '#f59e0b', marginBottom: 4 }}>2. No a la desinformación</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Verifica la fuente antes de publicar noticias o datos falsos.</div>
+                    </div>
+                    <div style={{ padding: 16, background: 'var(--bg-primary)', borderRadius: 12, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                        <div style={{ fontWeight: 600, color: '#10b981', marginBottom: 4 }}>3. Respeto Político</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Debate y propuestas amigables. No toleramos la toxicidad.</div>
+                    </div>
+                    <div style={{ padding: 16, background: 'var(--bg-primary)', borderRadius: 12, border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                        <div style={{ fontWeight: 600, color: '#8b5cf6', marginBottom: 4 }}>4. No Spam</div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Evita enviar cadenas, publicidad externa o enlaces maliciosos.</div>
+                    </div>
+                </div>
             </div>
 
             {/* Country rooms */}

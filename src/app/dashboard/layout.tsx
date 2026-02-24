@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
     FiMessageCircle, FiCalendar, FiGlobe, FiLogOut,
-    FiMenu, FiX, FiBell, FiUsers, FiHome, FiRadio
+    FiMenu, FiX, FiBell, FiUsers, FiHome, FiRadio, FiPlayCircle, FiPauseCircle
 } from 'react-icons/fi'
 
 const NAV_ITEMS = [
@@ -21,6 +21,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [user, setUser] = useState<{ email?: string; user_metadata?: Record<string, string> } | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [pathname, setPathname] = useState('')
+    const [isPlayingRadio, setIsPlayingRadio] = useState(false)
+    const radioRef = typeof window !== 'undefined' ? document.getElementById('global-radio') as HTMLAudioElement : null
+
+    const toggleRadio = () => {
+        if (!radioRef) return
+        if (isPlayingRadio) {
+            radioRef.pause()
+            setIsPlayingRadio(false)
+        } else {
+            radioRef.play().then(() => setIsPlayingRadio(true)).catch(e => console.error("Radio play error:", e))
+        }
+    }
 
     useEffect(() => {
         if (typeof window !== 'undefined') setPathname(window.location.pathname)
@@ -179,6 +191,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             background: 'var(--red-primary)'
                         }} />
                     </button>
+
+                    <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
+                        background: isPlayingRadio ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.05)',
+                        border: isPlayingRadio ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
+                        color: isPlayingRadio ? '#10b981' : 'var(--text-secondary)',
+                        padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 13,
+                        transition: 'all 0.2s'
+                    }}>
+                        {isPlayingRadio ? <FiPauseCircle size={16} className="animate-pulse" /> : <FiPlayCircle size={16} />}
+                        <span className="hide-mobile">Radio 🇩🇴</span>
+                    </button>
+
+                    <button onClick={handleLogout} style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                        color: '#ef4444', padding: '6px 12px', borderRadius: 20,
+                        cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s'
+                    }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)')}
+                    >
+                        <FiLogOut size={14} /> <span className="hide-mobile">Salir</span>
+                    </button>
+
                     <div style={{
                         width: 34, height: 34, borderRadius: '50%',
                         background: 'linear-gradient(135deg, var(--blue-primary), var(--blue-light))',
@@ -195,8 +232,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           .sidebar-toggle { display: block !important; }
           .mobile-overlay { display: block !important; }
           .close-sidebar { display: block !important; }
+          .hide-mobile { display: none !important; }
         }
       `}</style>
+
+            {/* Global Radio Audio Element */}
+            <audio id="global-radio" src="https://stream.zeno.fm/54cwb997s8ruv" preload="none" />
         </div>
     )
 }

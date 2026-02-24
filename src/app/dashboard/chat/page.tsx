@@ -1,9 +1,8 @@
 'use client'
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
-import { FiSend, FiHash } from 'react-icons/fi'
+import { FiSend, FiHash, FiImage, FiSmile, FiBellOff, FiBell } from 'react-icons/fi'
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 
 interface Message {
     id: string
@@ -12,6 +11,9 @@ interface Message {
     user_id: string
     room: string
     user_name: string
+    media_url?: string
+    is_ai?: boolean
+    read_by?: string[]
 }
 
 const ROOMS = [
@@ -34,6 +36,9 @@ function ChatContent() {
     const [userId, setUserId] = useState('')
     const [userName, setUserName] = useState('')
     const [sending, setSending] = useState(false)
+    const [showEmojis, setShowEmojis] = useState(false)
+    const [isShaking, setIsShaking] = useState(false)
+
     const bottomRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -51,7 +56,8 @@ function ChatContent() {
             .select('*')
             .eq('room', activeRoom)
             .order('created_at', { ascending: true })
-            .limit(50)
+            .limit(100)
+
         if (data) setMessages(data)
     }, [activeRoom])
 
@@ -63,9 +69,17 @@ function ChatContent() {
                 event: 'INSERT', schema: 'public', table: 'messages',
                 filter: `room=eq.${activeRoom}`
             }, (payload) => {
-                setMessages(prev => [...prev, payload.new as Message])
+                const newMsg = payload.new as Message;
+                if (newMsg.content === '*🔔 ZUMBIDO*') {
+                    handleZumbido()
+                }
+                setMessages(prev => {
+                    if (prev.some(m => m.id === newMsg.id)) return prev;
+                    return [...prev, newMsg]
+                })
             })
             .subscribe()
+
         return () => { supabase.removeChannel(channel) }
     }, [activeRoom, loadMessages])
 
@@ -73,112 +87,216 @@ function ChatContent() {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
-    const sendMessage = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!newMsg.trim() || !userId) return
-        setSending(true)
+    const handleZumbido = () => {
+        setIsShaking(true);
+        if (typeof window !== 'undefined') {
+            const audio = new Audio('/zumbido.mp3'); // En el futuro se puede añadir archivo real
+            audio.play().catch(() => { });
+        }
+        setTimeout(() => setIsShaking(false), 500);
+    }
+
+    const sendZumbido = async () => {
+        if (!userId) return
         await supabase.from('messages').insert({
-            content: newMsg.trim(),
+            content: '*🔔 ZUMBIDO*',
             room: activeRoom,
             user_id: userId,
             user_name: userName,
         })
-        setNewMsg('')
+    }
+
+    const sendAIResponse = async (room: string) => {
+        const responses = [
+            "Colladin: ¡Hola! En República Dominicana el turismo sigue creciendo a niveles históricos, y para el 2028 esperamos grandes cosas.",
+            "Colladin: ¡Saludos desde la IA! La diáspora europea es parte vital de nuestra economía. 💪 ¿De qué país nos escribes?",
+            "Colladin: Hablando de política, las propuestas para fortalecer nuestros lazos con la JCE son una prioridad para nosotros.",
+            "Colladin: ¿Alguien más extraña el mangú? 🇩🇴 ¡Sigamos conectando y ayudando a nuestra gente!",
+        ]
+        const randomResp = responses[Math.floor(Math.random() * responses.length)]
+
+        await supabase.from('messages').insert({
+            content: randomResp,
+            room: room,
+            user_id: '00000000-0000-0000-0000-000000000000', // Mock AI uuid
+            user_name: 'Colladin (IA)',
+            is_ai: true
+        })
+    }
+
+    const sendMessage = async (e: React.FormEvent) => {
+        e.preventDefault()
+        const text = newMsg.trim();
+        if (!text || !userId) return
+
+        setSending(true)
+        setNewMsg('') // Optimistic clear
+
+        const { data, error } = await supabase.from('messages').insert({
+            content: text,
+            room: activeRoom,
+            user_id: userId,
+            user_name: userName,
+        }).select().single()
+
+        if (!error && data) {
+            setMessages(prev => prev.some(m => m.id === data.id) ? prev : [...prev, data])
+        }
+
+        // Trigger AI
+        if (text.toLowerCase().includes('@colladin')) {
+            setTimeout(() => sendAIResponse(activeRoom), 1500 + Math.random() * 1000)
+        }
+
         setSending(false)
+        setShowEmojis(false)
     }
 
     const formatTime = (iso: string) =>
         new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
 
+    const renderTextWithMentions = (text: string) => {
+        if (text === '*🔔 ZUMBIDO*') {
+            return <i style={{ color: '#ef4444', fontWeight: 'bold' }}>🔔 Envió un zumbido...</i>
+        }
+
+        const parts = text.split(/(@\w+)/g);
+        return parts.map((part, i) => {
+            if (part.startsWith('@')) {
+                return <span key={i} style={{ color: '#60a5fa', fontWeight: 600 }}>{part}</span>
+            }
+            return part;
+        });
+    }
+
     return (
-        <div className="animate-fade-in" style={{ display: 'flex', gap: 0, height: 'calc(100vh - 145px)', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)' }}>
+        <div className={`chat-container ${isShaking ? 'shake-animation' : ''}`} style={{
+            display: 'flex', gap: 0, height: 'calc(100vh - 145px)',
+            borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+        }}>
             {/* Room list */}
             <div style={{
-                width: 220, background: 'var(--bg-secondary)',
+                width: 240, background: 'var(--bg-secondary)',
                 borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', flexShrink: 0
-            }}>
-                <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1 }}>SALAS</div>
+            }} className="hide-mobile">
+                <div style={{ padding: '20px', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1 }}>SALAS DE CHAT</div>
                 </div>
-                <div style={{ overflowY: 'auto', flex: 1, padding: '8px' }}>
+                <div style={{ overflowY: 'auto', flex: 1, padding: '12px' }}>
                     {ROOMS.map(r => (
                         <button
                             key={r.id}
                             onClick={() => setActiveRoom(r.id)}
                             style={{
-                                width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-                                padding: '10px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                                background: activeRoom === r.id ? 'rgba(0,45,98,0.4)' : 'transparent',
-                                color: activeRoom === r.id ? '#60a5fa' : 'var(--text-secondary)',
-                                fontWeight: activeRoom === r.id ? 600 : 400,
-                                fontSize: 13, textAlign: 'left', transition: 'all 0.2s',
-                                fontFamily: 'Inter, sans-serif'
+                                width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                                padding: '12px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                                background: activeRoom === r.id ? 'var(--blue-light)' : 'transparent',
+                                color: activeRoom === r.id ? 'white' : 'var(--text-secondary)',
+                                fontWeight: activeRoom === r.id ? 600 : 500,
+                                fontSize: 14, textAlign: 'left', transition: 'all 0.2s',
+                                marginBottom: 4
                             }}
                         >
-                            <FiHash size={13} /> {r.label}
+                            <FiHash size={16} color={activeRoom === r.id ? "white" : "var(--text-muted)"} /> {r.label}
                         </button>
                     ))}
                 </div>
             </div>
 
             {/* Chat area */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#ece5dd' /* WhatsApp BG style */ }}>
                 {/* Header */}
                 <div style={{
-                    padding: '14px 20px', borderBottom: '1px solid var(--border)',
-                    background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: 8
+                    padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.08)',
+                    background: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: 12,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)', zIndex: 10
                 }}>
-                    <FiHash size={16} color="#60a5fa" />
-                    <span style={{ fontWeight: 700, fontSize: 15 }}>{activeRoom}</span>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 4 }}>
-                        — Sala de la comunidad dominicana en {activeRoom}
-                    </span>
+                    <div style={{
+                        width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue-primary), var(--red-primary))',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
+                    }}>
+                        <FiHash size={20} />
+                    </div>
+                    <div>
+                        <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>{activeRoom}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                            {messages.length} mensajes • Diáspora en acción
+                        </div>
+                    </div>
+
+                    <button onClick={sendZumbido} title="Enviar Zumbido" style={{
+                        marginLeft: 'auto', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
+                        border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 13
+                    }}>
+                        <FiBell size={16} /> Zumbido
+                    </button>
                 </div>
 
                 {/* Messages */}
-                <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+                <div style={{
+                    flex: 1, overflowY: 'auto', padding: '24px',
+                    display: 'flex', flexDirection: 'column', gap: 12,
+                    backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
+                    backgroundBlendMode: 'overlay'
+                }}>
                     {messages.length === 0 && (
-                        <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40, fontSize: 14 }}>
-                            🇩🇴 Sé el primero en escribir en #{activeRoom}
+                        <div style={{ textAlign: 'center', margin: 'auto', background: 'rgba(255,255,255,0.8)', padding: '12px 24px', borderRadius: 20, fontSize: 14, boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
+                            🇩🇴 Sé el primero en escribir en #{activeRoom}. Mencionando a <b>@Colladin</b> recibirás una respuesta de nuestra IA.
                         </div>
                     )}
+
                     {messages.map((msg, i) => {
                         const isOwn = msg.user_id === userId
+                        const isAi = msg.is_ai || msg.user_name === 'Colladin (IA)'
                         const showAvatar = i === 0 || messages[i - 1].user_id !== msg.user_id
+
                         return (
                             <div key={msg.id} style={{
                                 display: 'flex', flexDirection: isOwn ? 'row-reverse' : 'row',
-                                gap: 10, marginBottom: showAvatar ? 16 : 4, alignItems: 'flex-end'
+                                gap: 8, marginTop: showAvatar ? 8 : 0, maxWidth: '85%',
+                                alignSelf: isOwn ? 'flex-end' : 'flex-start'
                             }}>
-                                {showAvatar && !isOwn && (
+                                {!isOwn && showAvatar && (
                                     <div style={{
-                                        width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-                                        background: 'linear-gradient(135deg, var(--blue-primary), var(--blue-light))',
+                                        width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                                        background: isAi ? '#10b981' : 'var(--blue-primary)',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: 12, fontWeight: 700, color: 'white'
+                                        fontSize: 10, fontWeight: 700, color: 'white', marginTop: 18
                                     }}>
-                                        {msg.user_name?.slice(0, 2).toUpperCase()}
+                                        {isAi ? 'IA' : msg.user_name?.slice(0, 2).toUpperCase()}
                                     </div>
                                 )}
-                                {!showAvatar && !isOwn && <div style={{ width: 34 }} />}
-                                <div style={{ maxWidth: '70%' }}>
-                                    {showAvatar && !isOwn && (
-                                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4, paddingLeft: 4 }}>
+                                {!isOwn && !showAvatar && <div style={{ width: 28 }} />}
+
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    {!isOwn && showAvatar && (
+                                        <div style={{ fontSize: 12, color: isAi ? '#10b981' : 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, marginLeft: 4 }}>
                                             {msg.user_name}
                                         </div>
                                     )}
                                     <div style={{
-                                        padding: '10px 14px', borderRadius: isOwn ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                                        background: isOwn
-                                            ? 'linear-gradient(135deg, var(--blue-primary), var(--blue-light))'
-                                            : 'var(--bg-card)',
-                                        border: isOwn ? 'none' : '1px solid var(--border)',
-                                        fontSize: 14, lineHeight: 1.5, color: 'white'
+                                        padding: '8px 14px',
+                                        borderRadius: isOwn ? '12px 0px 12px 12px' : '0px 12px 12px 12px',
+                                        background: isOwn ? '#dcf8c6' : '#ffffff', // WhatsApp aesthetic
+                                        color: '#303030',
+                                        fontSize: 14, lineHeight: 1.4,
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                        position: 'relative'
                                     }}>
-                                        {msg.content}
-                                    </div>
-                                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, textAlign: isOwn ? 'right' : 'left', paddingLeft: 4 }}>
-                                        {formatTime(msg.created_at)}
+                                        {renderTextWithMentions(msg.content)}
+
+                                        <div style={{
+                                            display: 'flex', alignItems: 'center', gap: 4,
+                                            justifyContent: 'flex-end', marginTop: 4,
+                                            fontSize: 10, color: '#888'
+                                        }}>
+                                            {formatTime(msg.created_at)}
+                                            {isOwn && (
+                                                <span style={{ color: '#34b7f1', fontSize: 14 }}>✓✓</span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -187,31 +305,75 @@ function ChatContent() {
                     <div ref={bottomRef} />
                 </div>
 
-                {/* Input */}
-                <form onSubmit={sendMessage} style={{
-                    padding: '16px 20px', borderTop: '1px solid var(--border)',
-                    background: 'var(--bg-secondary)', display: 'flex', gap: 12, alignItems: 'center'
-                }}>
-                    <input
-                        id="chat-input"
-                        value={newMsg}
-                        onChange={e => setNewMsg(e.target.value)}
-                        placeholder={`Escribe en #${activeRoom}...`}
-                        className="input"
-                        style={{ flex: 1, padding: '12px 16px' }}
-                        maxLength={500}
-                    />
-                    <button
-                        id="chat-send"
-                        type="submit"
-                        className="btn btn-primary"
-                        style={{ padding: '12px 20px', flexShrink: 0 }}
-                        disabled={sending || !newMsg.trim()}
-                    >
-                        <FiSend size={16} />
-                    </button>
-                </form>
+                {/* Input area */}
+                <div style={{ background: '#f0f0f0', padding: '12px 20px', position: 'relative' }}>
+                    {showEmojis && (
+                        <div style={{
+                            position: 'absolute', bottom: '100%', left: 20, marginBottom: 8,
+                            background: 'white', padding: 12, borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            display: 'flex', gap: 8, fontSize: 24
+                        }}>
+                            {['😀', '😂', '❤️', '👍', '🙏', '🔥', '🇩🇴', '🎉'].map(emoji => (
+                                <button key={emoji} onClick={() => { setNewMsg(prev => prev + emoji); setShowEmojis(false) }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    <form onSubmit={sendMessage} style={{
+                        display: 'flex', gap: 12, alignItems: 'center'
+                    }}>
+                        <button type="button" onClick={() => setShowEmojis(!showEmojis)} style={{
+                            background: 'none', border: 'none', color: '#666', cursor: 'pointer', padding: 8
+                        }}>
+                            <FiSmile size={24} />
+                        </button>
+
+                        <button type="button" onClick={() => alert("Subida de imágenes estará disponible pronto.")} style={{
+                            background: 'none', border: 'none', color: '#666', cursor: 'pointer', padding: 8
+                        }}>
+                            <FiImage size={24} />
+                        </button>
+
+                        <input
+                            value={newMsg}
+                            onChange={e => setNewMsg(e.target.value)}
+                            placeholder={`Escribe un mensaje en #${activeRoom}...`}
+                            style={{
+                                flex: 1, padding: '12px 20px', borderRadius: 24, border: 'none',
+                                outline: 'none', fontSize: 15, boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                            }}
+                            maxLength={500}
+                        />
+
+                        <button
+                            type="submit"
+                            style={{
+                                padding: 12, borderRadius: '50%', border: 'none', background: newMsg.trim() ? '#00a884' : '#ccc',
+                                color: 'white', cursor: newMsg.trim() ? 'pointer' : 'default', display: 'flex',
+                                alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', width: 44, height: 44
+                            }}
+                            disabled={sending || !newMsg.trim()}
+                        >
+                            <FiSend size={20} style={{ marginLeft: -2 }} />
+                        </button>
+                    </form>
+                </div>
             </div>
+
+            <style>{`
+                .shake-animation {
+                    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+                }
+                @keyframes shake {
+                    10%, 90% { transform: translate3d(-1px, 0, 0); }
+                    20%, 80% { transform: translate3d(2px, 0, 0); }
+                    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+                    40%, 60% { transform: translate3d(4px, 0, 0); }
+                }
+            `}</style>
         </div>
     )
 }
