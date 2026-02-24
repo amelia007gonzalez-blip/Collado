@@ -277,10 +277,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     }}>{initials}</div>
                 </header>
 
+                {/* Cintillos de Información */}
+                <div style={{ background: '#fefce8', borderBottom: '1px solid #fef3c7', padding: '4px 0', overflow: 'hidden' }}>
+                    <div className="ticker-wrap" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
+                        <div className="ticker-item" style={{ fontSize: 11, fontWeight: 700, color: '#854d0e', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            📻 LA RADIO: Sintoniza Z 101 Digital y Disco 106 - El pulso de la República Dominicana en Europa.
+                        </div>
+                    </div>
+                </div>
+                <div style={{ background: 'var(--blue-primary)', color: 'white', padding: '6px 0', overflow: 'hidden' }}>
+                    <div className="ticker-news" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
+                        <div className="ticker-content" style={{ fontSize: 13, fontWeight: 500, padding: '0 40px' }}>
+                            🇩🇴 ÚLTIMAS NOTICIAS: David Collado reconocido como "Ministro de Las Américas" por ONU Turismo • RD alcanza cifra récord de 11 millones de visitantes • Se proyecta un crecimiento histórico para el sector turístico en 2025 • Inauguración de nuevos malecones y playas públicas en todo el país • Presidente Abinader destaca el papel de la diáspora en el desarrollo nacional.
+                        </div>
+                    </div>
+                </div>
+
                 <div style={{ padding: '32px 28px' }}>{children}</div>
             </div>
 
             <style>{`
+        .ticker-wrap { width: 100%; overflow: hidden; }
+        .ticker-content {
+            display: inline-block;
+            animation: ticker 30s linear infinite;
+            padding-right: 100%;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
         @media (max-width: 768px) {
           .sidebar-toggle { display: block !important; }
           .mobile-overlay { display: block !important; }
