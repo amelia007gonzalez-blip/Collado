@@ -24,14 +24,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [isPlayingRadio, setIsPlayingRadio] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
-    // Ensure audio is initialized correctly without DOM policies
-    useEffect(() => {
-        if (typeof window !== 'undefined' && !audioRef.current) {
-            audioRef.current = new Audio('https://stream.zeno.fm/54cwb997s8ruv') // Emisora dominicana global
-            audioRef.current.preload = 'none'
-            audioRef.current.volume = 0.8
-        }
-    }, [])
+    // Eliminamos el new Audio() del useEffect para usar un elemento nativo del DOM
+    // que es mucho más compatible con las políticas de navegación móvil.
 
     const toggleRadio = () => {
         if (!audioRef.current) return
@@ -283,6 +277,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
       `}</style>
 
-        </div>
+            {/* Elemento de Radio Nativo, mejor soportado por todos los navegadores */}
+            <audio ref={audioRef} src="https://stream.zeno.fm/54cwb997s8ruv" preload="none" crossOrigin="anonymous" />
+        </div >
     )
 }
