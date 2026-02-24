@@ -37,16 +37,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setIsLoadingRadio(false)
         } else {
             setIsLoadingRadio(true)
-            setIsPlayingRadio(true) // Reacción inmediata visual
+            setIsPlayingRadio(true)
 
-            // Usamos un pequeño delay para asegurar el estado visual antes de la carga pesada
+            // Intentamos reproducir directamente. Si el navegador bloquea el primer intento, 
+            // el usuario ya interactuó con el botón, así que el segundo intento (load + play) debería funcionar.
             audioRef.current.play().then(() => {
                 setIsLoadingRadio(false)
-            }).catch(e => {
-                console.error("Radio play error:", e)
-                setIsPlayingRadio(false)
-                setIsLoadingRadio(false)
-                alert("La emisora está temporalmente fuera de servicio o tu navegador bloqueó el audio. Intenta de nuevo.")
+            }).catch(() => {
+                // Si falla el primer intento (muy común en Safari/Chrome móvil), reintentamos forzando carga
+                audioRef.current?.load()
+                audioRef.current?.play().then(() => {
+                    setIsLoadingRadio(false)
+                }).catch(e => {
+                    console.error("Radio final error:", e)
+                    setIsPlayingRadio(false)
+                    setIsLoadingRadio(false)
+                })
             })
         }
     }
@@ -287,8 +293,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
       `}</style>
 
-            {/* Emisora: Z Digital 101.3 - Una de las más potentes de RD */}
-            <audio ref={audioRef} src="https://stream.zeno.fm/54cwb997s8ruv" preload="none" />
+            {/* Emisora Dominicana: Disco 106.1 FM (Muy estable y música variada) */}
+            <audio ref={audioRef} src="https://stream.zeno.fm/fvr868y9vduv" preload="none" crossOrigin="anonymous" />
         </div>
     )
 }
