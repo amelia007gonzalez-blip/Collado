@@ -134,7 +134,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
 
                 {/* Navigation */}
-                <nav style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
+                <nav style={{ padding: '16px 12px', flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+
+                    {/* Logout button moved inside nav for better scrolling */}
+                    <div style={{ padding: '0 8px 16px', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
+                        <button onClick={handleLogout} className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center', fontSize: 13, background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444' }}>
+                            <FiLogOut size={16} /> Cerrar sesión
+                        </button>
+                    </div>
+
                     <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1, padding: '0 8px', marginBottom: 8 }}>
                         MENÚ PRINCIPAL
                     </div>
@@ -177,7 +185,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         { flag: '🇵🇹', id: 'Portugal', label: 'Portugal' },
                         { flag: '🇳🇱', id: 'Países Bajos', label: 'Países Bajos' },
                         { flag: '🇧🇪', id: 'Bélgica', label: 'Bélgica' },
-                        { flag: '🇨🇿', id: 'Rep. Checa', label: 'Rep. Checa' }
+                        { flag: '🇨🇿', id: 'Rep. Checa', label: 'Rep. Checa' },
+                        { flag: '🤝', id: 'La Sala del Junte', label: 'La Sala del Junte' }
                     ].map(r => (
                         <Link
                             key={r.id}
@@ -199,12 +208,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     ))}
                 </nav>
 
-                {/* Logout */}
-                <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
-                    <button onClick={handleLogout} className="btn btn-ghost" style={{ width: '100%', justifyContent: 'center', fontSize: 13 }}>
-                        <FiLogOut size={16} /> Cerrar sesión
-                    </button>
-                </div>
                 <div className="flag-stripe" />
             </aside>
 

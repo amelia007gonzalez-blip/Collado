@@ -32,7 +32,9 @@
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -51,58 +53,136 @@ body {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-secondary); }
-::-webkit-scrollbar-thumb { background: var(--blue-primary); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--blue-light); }
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--blue-primary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--blue-light);
+}
 
 /* =================== ANIMATIONS =================== */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes pulse-blue {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 45, 98, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(0, 45, 98, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 45, 98, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(0, 45, 98, 0);
+  }
 }
 
 @keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(206, 17, 38, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(206, 17, 38, 0); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(206, 17, 38, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(206, 17, 38, 0);
+  }
 }
 
 @keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =================== UTILITY CLASSES =================== */
-.animate-fade-in { animation: fadeIn 0.5s ease forwards; }
-.animate-slide-left { animation: slideInLeft 0.5s ease forwards; }
-.animate-slide-right { animation: slideInRight 0.5s ease forwards; }
-.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.5s ease forwards;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.5s ease forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
 
 .gradient-text {
   background: linear-gradient(135deg, var(--blue-light), var(--red-primary));
@@ -252,7 +332,8 @@ body {
 
 .sidebar {
   width: 280px;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border);
   position: fixed;
@@ -262,6 +343,7 @@ body {
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
+  overflow: hidden;
 }
 
 .main-content {
@@ -283,7 +365,8 @@ body {
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
-    width: 260px;
+    width: 280px;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar.open {
@@ -304,6 +387,6 @@ body {
 /* Hero gradient */
 .hero-gradient {
   background: radial-gradient(ellipse at top left, rgba(0, 45, 98, 0.4) 0%, transparent 60%),
-              radial-gradient(ellipse at bottom right, rgba(206, 17, 38, 0.2) 0%, transparent 60%),
-              var(--bg-primary);
+    radial-gradient(ellipse at bottom right, rgba(206, 17, 38, 0.2) 0%, transparent 60%),
+    var(--bg-primary);
 }
