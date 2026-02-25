@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback, Suspense } from 'react'
 export const dynamic = 'force-dynamic'
 import { supabase } from '@/lib/supabase'
-import { FiSend, FiHash, FiImage, FiSmile, FiBellOff, FiBell } from 'react-icons/fi'
+import { FiSend, FiHash, FiImage, FiSmile, FiBellOff, FiBell, FiUsers } from 'react-icons/fi'
 import { useSearchParams } from 'next/navigation'
 
 interface Message {
@@ -267,11 +267,15 @@ function ChatContent() {
 
         // 2. Intentar guardar en base de datos
         try {
+            // Asegurar que tenemos un ID de usuario válido (o uno temporal si no hay auth aún)
+            const finalUserId = userId || '00000000-0000-0000-0000-000000000000'
+            const finalUserName = userName || 'Usuario'
+
             const { data, error } = await supabase.from('messages').insert({
                 content: text,
                 room: activeRoom,
-                user_id: userId,
-                user_name: userName,
+                user_id: finalUserId,
+                user_name: finalUserName,
             }).select().single()
 
             if (error) throw error;
@@ -284,7 +288,6 @@ function ChatContent() {
             setMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data : m));
         } catch (error) {
             console.error("Error persistiendo mensaje:", error)
-            // No alertamos para no molestar, el mensaje ya está en pantalla y en localStorage
         }
 
         // Trigger AI
@@ -442,18 +445,32 @@ function ChatContent() {
                 </div>
 
                 {activeRoom === 'La Sala del Junte' && (
-                    <div style={{ background: 'white', padding: '12px 24px', borderBottom: '1px solid #eee', fontSize: 13, color: '#444' }}>
-                        <div style={{ fontWeight: 700, color: 'var(--blue-primary)', marginBottom: 4 }}>
-                            🚀 DINÁMICA DE "EL JUNTE":
-                        </div>
-                        Esta es una sala especial donde al reunirse <b>5 personas</b> pueden iniciar un directo streaming de 20 min. {junteState.status === 'OCUPADA' ? 'Actualmente hay una sesión en progreso.' : '¡La sala está libre! Únete a la fila para el próximo Junte.'}
-                        <div style={{ marginTop: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
-                            <button
-                                onClick={() => alert("✅ ¡Turno validado en sistema! Estás en la posición #3 de la fila activa de esta sala de Junte.")}
-                                className="btn btn-primary" style={{ padding: '8px 14px', fontSize: 12, fontWeight: 'bold' }}>
-                                {junteState.status === 'OCUPADA' ? 'Solicitar Turno (Ticket)' : 'Entrar a la Sala'}
-                            </button>
-                            <span style={{ fontSize: 11, color: '#888' }}>Tema sugerido: <b>Mejorar seguridad turista.</b></span>
+                    <div style={{ background: '#fff9db', padding: '16px 24px', borderBottom: '2px solid #fab005', fontSize: 13, color: '#444' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 800, color: '#e67700', fontSize: 15, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    ☕️ EL RINCONCITO DEL JUNTE
+                                </div>
+                                <div style={{ lineHeight: 1.5 }}>
+                                    ¡Bienvenido al espacio de relajación! Aquí nos tomamos <b>un cafecito virtual ☕️</b> o <b>una cervecita bien fría 🍺</b>.
+                                    Comparte tus anécdotas, relájate y conecta con otros dominicanos en Europa.
+                                </div>
+                                <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
+                                    <button
+                                        onClick={() => alert("✅ ¡Turno validado! Te servimos un cafecito virtual en la mesa #3.")}
+                                        style={{ background: '#e67700', color: 'white', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
+                                        ☕️ Pedir Cafecito
+                                    </button>
+                                    <button
+                                        onClick={() => alert("✅ ¡Salud! Cervecita virtual entregada en la barra.")}
+                                        style={{ background: '#fab005', color: '#000', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
+                                        🍺 Pedir Cervecita
+                                    </button>
+                                </div>
+                            </div>
+                            <div style={{ width: 100, height: 100, opacity: 0.1, display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hide-mobile">
+                                <FiUsers size={80} />
+                            </div>
                         </div>
                     </div>
                 )}

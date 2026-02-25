@@ -217,11 +217,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className={`main-content ${sidebarOpen ? 'shifted' : ''}`}>
                 {/* Top bar */}
                 <header className="mobile-header" style={{
-                    padding: '16px 28px', borderBottom: '1px solid var(--border)',
+                    height: 80, minHeight: 80, padding: '0 28px', borderBottom: '2px solid #ce1126',
                     display: 'flex', alignItems: 'center', gap: 16,
                     background: 'var(--bg-secondary)', zIndex: 50,
-                    flexShrink: 0, position: 'relative'
+                    flexShrink: 0, position: 'relative', width: '100%'
                 }}>
+                    <div style={{ position: 'absolute', top: 0, right: 0, fontSize: 8, color: '#444', padding: '2px 4px' }}>v1.7.0b</div>
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
                         background: 'none', border: 'none', color: 'var(--text-secondary)',
                         cursor: 'pointer', display: 'none'
