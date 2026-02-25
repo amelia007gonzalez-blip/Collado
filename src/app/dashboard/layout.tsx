@@ -238,13 +238,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </button>
 
                     <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
-                        background: isPlayingRadio ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.1)',
-                        border: isPlayingRadio ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.2)',
+                        background: isPlayingRadio ? 'rgba(239, 68, 68, 0.15)' : 'var(--blue-primary)',
+                        border: isPlayingRadio ? '1px solid #ef4444' : 'none',
                         color: isPlayingRadio ? '#ef4444' : 'white',
                         padding: '8px 16px', borderRadius: 24, cursor: 'pointer',
                         display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 13,
                         transition: 'all 0.3s',
-                        boxShadow: isPlayingRadio ? '0 0 15px rgba(239, 68, 68, 0.4)' : 'none',
+                        boxShadow: isPlayingRadio ? '0 0 15px rgba(239, 68, 68, 0.4)' : '0 2px 4px rgba(0,45,98,0.2)',
                     }}
                         className={isPlayingRadio ? "radio-playing" : ""}
                     >
