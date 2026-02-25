@@ -48,10 +48,9 @@ function ChatContent() {
     const [showEmojis, setShowEmojis] = useState(false)
     const [isShaking, setIsShaking] = useState(false)
     const greetedRoomsRef = useRef<Set<string>>(new Set())
+    const initialGreetingRef = useRef<boolean>(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const chatContainerRef = useRef<HTMLDivElement>(null)
-
-    // Sala del Junte Autonomy
     const [junteState, setJunteState] = useState<{ status: 'LIBRE' | 'OCUPADA', usersCount: number, waitTimeMinutes: number }>({ status: 'LIBRE', usersCount: 2, waitTimeMinutes: 0 });
 
     useEffect(() => {
@@ -175,19 +174,21 @@ function ChatContent() {
         const channel = supabase
             .channel(`room-${activeRoom}`)
             .on('postgres_changes', {
-                event: 'INSERT', schema: 'public', table: 'messages',
+                event: 'INSERT',
+                schema: 'public',
+                table: 'messages',
                 filter: `room=eq.${activeRoom}`
             }, (payload) => {
                 const newMsg = payload.new as Message;
                 if (newMsg.content === '*🔔 ZUMBIDO*') {
-                    handleZumbido()
+                    handleZumbido();
                 }
                 setMessages(prev => {
                     if (prev.some(m => m.id === newMsg.id)) return prev;
-                    return [...prev, newMsg]
-                })
+                    return [...prev, newMsg];
+                });
             })
-            .subscribe()
+            .subscribe();
 
         return () => { supabase.removeChannel(channel) }
     }, [activeRoom, loadMessages])
@@ -234,6 +235,25 @@ function ChatContent() {
             is_ai: true
         })
     }
+
+    // Proactive @Colladin Greeting
+    useEffect(() => {
+        if (!initialGreetingRef.current && messages.length > 0) {
+            initialGreetingRef.current = true;
+            setTimeout(() => {
+                const greeting: Message = {
+                    id: `ai-greet-${Date.now()}`,
+                    content: `¡Hola ${userName}! 🇩🇴 Soy @Colladin, tu asistente. Estoy aquí para contarte los logros de David Collado o ayudarte con la app. ¡Pregúntame lo que quieras etiquetándome!`,
+                    created_at: new Date().toISOString(),
+                    user_id: 'colladin',
+                    room: activeRoom,
+                    user_name: 'Colladin (IA)',
+                    is_ai: true
+                };
+                setMessages(prev => [...prev, greeting]);
+            }, 2000);
+        }
+    }, [activeRoom, userName, messages.length]);
 
     const sendMessage = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -392,7 +412,15 @@ function ChatContent() {
             </div>
 
             {/* Chat area */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#ece5dd' /* WhatsApp BG style */ }}>
+            <div style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                background: '#ece5dd',
+                height: 'calc(100vh - 56px)',
+                overflow: 'hidden',
+                position: 'relative'
+            }}>
                 {/* Header */}
                 <div style={{
                     padding: '8px 16px', borderBottom: '1px solid rgba(0,0,0,0.08)',
@@ -567,12 +595,17 @@ function ChatContent() {
                 </div>
 
                 {/* Input area */}
-                <div style={{ background: '#f0f0f0', padding: '12px 20px', position: 'relative' }}>
+                <div style={{
+                    background: '#f0f0f0',
+                    padding: '8px 12px',
+                    position: 'relative',
+                    borderTop: '1px solid #ddd'
+                }}>
                     {showEmojis && (
                         <div style={{
-                            position: 'absolute', bottom: '100%', left: 20, marginBottom: 8,
-                            background: 'white', padding: 12, borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            display: 'flex', gap: 8, fontSize: 24
+                            position: 'absolute', bottom: '100%', left: 10, marginBottom: 8,
+                            background: 'white', padding: 8, borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            display: 'flex', gap: 6, fontSize: 20, zIndex: 100
                         }}>
                             {['😀', '😂', '❤️', '👍', '🙏', '🔥', '🇩🇴', '🎉'].map(emoji => (
                                 <button key={emoji} onClick={() => { setNewMsg(prev => prev + emoji); setShowEmojis(false) }}
@@ -584,19 +617,21 @@ function ChatContent() {
                     )}
 
                     <form onSubmit={sendMessage} style={{
-                        display: 'flex', gap: 12, alignItems: 'center'
+                        display: 'flex', gap: 8, alignItems: 'center'
                     }}>
-                        <button type="button" onClick={() => setShowEmojis(!showEmojis)} style={{
-                            background: 'none', border: 'none', color: '#666', cursor: 'pointer', padding: 8
-                        }}>
-                            <FiSmile size={24} />
-                        </button>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                            <button type="button" onClick={() => setShowEmojis(!showEmojis)} style={{
+                                background: 'none', border: 'none', color: '#666', cursor: 'pointer', padding: 6
+                            }}>
+                                <FiSmile size={22} />
+                            </button>
 
-                        <button type="button" onClick={() => fileInputRef.current?.click()} style={{
-                            background: 'none', border: 'none', color: uploadingImage ? '#ccc' : '#666', cursor: 'pointer', padding: 8
-                        }} disabled={uploadingImage}>
-                            <FiImage size={24} className={uploadingImage ? "animate-pulse" : ""} />
-                        </button>
+                            <button type="button" onClick={() => fileInputRef.current?.click()} style={{
+                                background: 'none', border: 'none', color: uploadingImage ? '#ccc' : '#666', cursor: 'pointer', padding: 6
+                            }} disabled={uploadingImage} className="hide-mobile">
+                                <FiImage size={22} className={uploadingImage ? "animate-pulse" : ""} />
+                            </button>
+                        </div>
 
                         <input
                             type="file"
@@ -609,10 +644,10 @@ function ChatContent() {
                         <input
                             value={newMsg}
                             onChange={e => setNewMsg(e.target.value)}
-                            placeholder={`Escribe un mensaje en #${activeRoom}...`}
+                            placeholder="Escribe..."
                             style={{
-                                flex: 1, padding: '12px 20px', borderRadius: 24, border: 'none',
-                                outline: 'none', fontSize: 15, boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                                flex: 1, padding: '10px 16px', borderRadius: 20, border: '1px solid #ddd',
+                                outline: 'none', fontSize: 14, boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
                             }}
                             maxLength={500}
                         />
@@ -620,13 +655,14 @@ function ChatContent() {
                         <button
                             type="submit"
                             style={{
-                                padding: 12, borderRadius: '50%', border: 'none', background: newMsg.trim() ? '#00a884' : '#ccc',
+                                padding: 10, borderRadius: '50%', border: 'none', background: newMsg.trim() ? '#00a884' : '#ccc',
                                 color: 'white', cursor: newMsg.trim() ? 'pointer' : 'default', display: 'flex',
-                                alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', width: 44, height: 44
+                                alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', width: 40, height: 40,
+                                flexShrink: 0
                             }}
                             disabled={sending || !newMsg.trim()}
                         >
-                            <FiSend size={20} style={{ marginLeft: -2 }} />
+                            <FiSend size={18} />
                         </button>
                     </form>
                 </div>

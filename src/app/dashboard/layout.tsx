@@ -309,9 +309,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div style={{
                     padding: pathname.includes('/chat') ? '0' : '20px 24px',
                     flex: 1,
-                    overflowY: 'auto',
+                    overflowY: pathname.includes('/chat') ? 'hidden' : 'auto',
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    position: 'relative'
                 }}>
                     {children}
                 </div>
