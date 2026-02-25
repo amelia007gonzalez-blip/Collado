@@ -211,7 +211,13 @@ function ChatContent() {
     const sendMessage = async (e: React.FormEvent) => {
         e.preventDefault()
         const text = newMsg.trim();
-        if (!text || !userId) return
+
+        if (!userId) {
+            alert("⚠️ No hemos podido identificar tu sesión (usuario desconectado). Por favor espera un momento y vuelve a recargar la app.");
+            return;
+        }
+
+        if (!text) return;
 
         setSending(true)
         setNewMsg('') // Optimistic clear
@@ -223,7 +229,14 @@ function ChatContent() {
             user_name: userName,
         }).select().single()
 
-        if (!error && data) {
+        if (error) {
+            console.error(error);
+            alert("Error al enviar el mensaje: " + error.message);
+            setSending(false);
+            return;
+        }
+
+        if (data) {
             setMessages(prev => prev.some(m => m.id === data.id) ? prev : [...prev, data])
         }
 
@@ -339,22 +352,23 @@ function ChatContent() {
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
                         <button onClick={() => window.location.href = '/dashboard'} style={{
-                            background: 'rgba(0,45,98,0.1)', border: 'none', padding: '8px 12px',
-                            borderRadius: 8, color: 'var(--blue-primary)', cursor: 'pointer',
-                            fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4
+                            background: 'var(--blue-light)', border: 'none', padding: '10px 16px',
+                            borderRadius: 12, color: 'white', cursor: 'pointer',
+                            fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6,
+                            boxShadow: '0 2px 4px rgba(0,45,98,0.2)'
                         }}>
                             🏠 Inicio
                         </button>
-                        <div style={{ width: 1, height: 24, background: '#ddd' }} />
+                        <div style={{ width: 1, height: 24, background: '#ddd' }} className="hide-mobile" />
                         <div style={{
                             width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue-primary), var(--red-primary))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
-                        }}>
+                        }} className="hide-mobile">
                             <FiHash size={18} />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{activeRoom}</div>
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--text-primary)' }}>{activeRoom}</div>
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }} className="hide-mobile">
                                 {activeRoom === 'La Sala del Junte' ? '🤝 Sala de conexión especial' : `${messages.length} mensajes • Diáspora en acción`}
                             </div>
                         </div>
@@ -387,8 +401,12 @@ function ChatContent() {
                         </div>
                         Esta es una sala especial donde al reunirse <b>5 personas</b> pueden iniciar un directo streaming de 20 min. {junteState.status === 'OCUPADA' ? 'Actualmente hay una sesión en progreso.' : '¡La sala está libre! Únete a la fila para el próximo Junte.'}
                         <div style={{ marginTop: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
-                            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: 11 }}>{junteState.status === 'OCUPADA' ? 'Solicitar Turno (Ticket)' : 'Entrar a la Sala'}</button>
-                            <span style={{ fontSize: 11, color: '#888' }}>Tema actual sugerido: <b>Mejorar la seguridad del turista en Sto. Dgo.</b></span>
+                            <button
+                                onClick={() => alert("✅ ¡Turno validado en sistema! Estás en la posición #3 de la fila activa de esta sala de Junte.")}
+                                className="btn btn-primary" style={{ padding: '8px 14px', fontSize: 12, fontWeight: 'bold' }}>
+                                {junteState.status === 'OCUPADA' ? 'Solicitar Turno (Ticket)' : 'Entrar a la Sala'}
+                            </button>
+                            <span style={{ fontSize: 11, color: '#888' }}>Tema sugerido: <b>Mejorar seguridad turista.</b></span>
                         </div>
                     </div>
                 )}

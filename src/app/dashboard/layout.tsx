@@ -213,7 +213,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Main */}
             <div className={`main-content ${sidebarOpen ? 'shifted' : ''}`}>
                 {/* Top bar */}
-                <header style={{
+                <header className="mobile-header" style={{
                     padding: '16px 28px', borderBottom: '1px solid var(--border)',
                     display: 'flex', alignItems: 'center', gap: 16,
                     background: 'var(--bg-secondary)', position: 'sticky', top: 0, zIndex: 50
@@ -317,6 +317,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           .mobile-overlay { display: block !important; }
           .close-sidebar { display: block !important; }
           .hide-mobile { display: none !important; }
+          .mobile-header { padding: 12px 16px !important; flex-wrap: wrap; gap: 8px !important; justify-content: space-between; }
+          .mobile-header > button[title="Radio Dominicana Online"] { order: 4; width: 100%; justify-content: center; margin-top: 4px; }
         }
         .radio-playing {
             animation: pulse-radio 2s infinite;
