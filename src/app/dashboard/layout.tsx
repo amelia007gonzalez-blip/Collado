@@ -216,13 +216,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Main */}
             <div className={`main-content ${sidebarOpen ? 'shifted' : ''}`}>
                 <header className="app-header" style={{
-                    height: 50, minHeight: 50, padding: '0 16px', borderBottom: '3px solid #ff0000',
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    background: '#0f172a', zIndex: 1000,
-                    flexShrink: 0, position: 'relative', width: '100%',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                    height: 56, minHeight: 56, padding: '0 20px', borderBottom: '3px solid #ff0000',
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    background: '#0f172a', zIndex: 1100,
+                    flexShrink: 0, position: 'sticky', top: 0, width: '100%',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.6)'
                 }}>
-                    <div style={{ position: 'absolute', top: -10, right: 10, fontSize: 10, color: '#00ff00', padding: '2px 8px', background: '#000', borderRadius: '4px', fontWeight: 'bold' }}>VERSION ACTIVA: v1.8.0</div>
+                    <div style={{ position: 'absolute', top: 0, right: 10, fontSize: 10, color: '#00ff00', padding: '4px 10px', background: '#000', borderRadius: '0 0 8px 8px', fontWeight: 'bold', zIndex: 1200 }}>v1.9.0-STICKY</div>
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
                         background: 'none', border: 'none', color: 'var(--text-secondary)',
                         cursor: 'pointer', display: 'none'
@@ -249,22 +249,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             background: isPlaying ? '#ff0000' : '#CE1126',
                             border: '2px solid #fff',
                             color: '#fff',
-                            padding: '4px 12px', borderRadius: 20, cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: 5, fontWeight: 900, fontSize: 11,
+                            padding: '6px 16px', borderRadius: 24, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: 8, fontWeight: 900, fontSize: 12,
                             transition: 'all 0.2s',
-                            boxShadow: '0 0 15px rgba(255,0,0,0.4)',
-                            transform: 'scale(1.1)',
-                            animation: isPlaying ? 'pulse-heavy 1.5s infinite' : 'none'
+                            boxShadow: '0 0 20px rgba(255,0,0,0.6)',
+                            transform: 'scale(1.15)',
+                            animation: isPlaying ? 'pulse-heavy 1.5s infinite' : 'none',
+                            zIndex: 1101
                         }}
                             className={isPlaying ? "radio-playing" : ""}
                         >
                             {isLoading ? (
-                                <div className="animate-spin-slow" style={{ width: 12, height: 12, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                                <div className="animate-spin-slow" style={{ width: 14, height: 14, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
                             ) : (
-                                isPlaying ? <FiPauseCircle size={16} /> : <FiPlayCircle size={16} />
+                                isPlaying ? <FiPauseCircle size={20} /> : <FiPlayCircle size={20} />
                             )}
-                            <span style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                                {isLoading ? '...' : (isPlaying ? 'EN VIVO' : 'RADIO 🇩🇴')}
+                            <span style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                                {isLoading ? '...' : (isPlaying ? 'EN VIVO' : 'ESCUCHAR RADIO 🇩🇴')}
                             </span>
                         </button>
 
@@ -306,9 +307,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
 
                 <div style={{
-                    padding: pathname.includes('/chat') ? '12px' : '20px 24px',
+                    padding: pathname.includes('/chat') ? '0' : '20px 24px',
                     flex: 1,
-                    overflow: 'hidden',
+                    overflowY: 'auto',
                     display: 'flex',
                     flexDirection: 'column'
                 }}>

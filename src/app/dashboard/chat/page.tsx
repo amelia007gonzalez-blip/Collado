@@ -47,7 +47,7 @@ function ChatContent() {
     const [uploadingImage, setUploadingImage] = useState(false)
     const [showEmojis, setShowEmojis] = useState(false)
     const [isShaking, setIsShaking] = useState(false)
-    const [greetedRooms, setGreetedRooms] = useState<Set<string>>(new Set())
+    const greetedRoomsRef = useRef<Set<string>>(new Set())
     const fileInputRef = useRef<HTMLInputElement>(null)
     const chatContainerRef = useRef<HTMLDivElement>(null)
 
@@ -148,13 +148,11 @@ function ChatContent() {
                 }
             })
 
-            if (combined.length === 0) throw new Error("Empty messages array");
-
             setMessages(combined)
-            if (combined.length < 3 && !greetedRooms.has(activeRoom)) {
+            if (combined.length < 3 && !greetedRoomsRef.current.has(activeRoom)) {
                 loadCollaborators(activeRoom, combined);
+                greetedRoomsRef.current.add(activeRoom);
             }
-            setGreetedRooms(prev => new Set(prev).add(activeRoom));
 
         } catch (err: any) {
             console.warn("Error en base de datos:", err);
@@ -165,12 +163,12 @@ function ChatContent() {
             ];
 
             setMessages(defaultMessages);
-            if (!greetedRooms.has(activeRoom)) {
+            if (!greetedRoomsRef.current.has(activeRoom)) {
                 loadCollaborators(activeRoom, defaultMessages);
-                setGreetedRooms(prev => new Set(prev).add(activeRoom));
+                greetedRoomsRef.current.add(activeRoom);
             }
         }
-    }, [activeRoom, loadCollaborators, greetedRooms])
+    }, [activeRoom, loadCollaborators])
 
     useEffect(() => {
         loadMessages()
@@ -446,31 +444,38 @@ function ChatContent() {
                 </div>
 
                 {activeRoom === 'La Sala del Junte' && (
-                    <div style={{ background: '#fff9db', padding: '16px 24px', borderBottom: '2px solid #fab005', fontSize: 13, color: '#444' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 800, color: '#e67700', fontSize: 15, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    ☕️ EL RINCONCITO DEL JUNTE
+                    <div style={{ background: '#fff9db', padding: '10px 16px', borderBottom: '2px solid #fab005', fontSize: 12, color: '#444' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                            <div style={{ flex: '1 1 280px' }}>
+                                <div style={{ fontWeight: 800, color: '#e67700', fontSize: 13, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    🚀 JUNTE ACTIVO: {junteState.status}
                                 </div>
-                                <div style={{ lineHeight: 1.5 }}>
-                                    ¡Bienvenido al espacio de relajación! Aquí nos tomamos <b>un cafecito virtual ☕️</b> o <b>una cervecita bien fría 🍺</b>.
-                                    Comparte tus anécdotas, relájate y conecta con otros dominicanos en Europa.
+                                <div style={{ lineHeight: 1.3 }}>
+                                    Capacidad: 5 personas. {junteState.status === 'LIBRE' ? '¡Entra y pide tu turno!' : `Sala ocupada. Espera: ${junteState.waitTimeMinutes} min.`}
+                                    <br />Tema actual: <b>Seguridad Ciudadana</b>
                                 </div>
-                                <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
+                                <div style={{ marginTop: 6, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                                     <button
-                                        onClick={() => alert("✅ ¡Turno validado! Te servimos un cafecito virtual en la mesa #3.")}
-                                        style={{ background: '#e67700', color: 'white', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
-                                        ☕️ Pedir Cafecito
+                                        onClick={() => alert(`✅ TICKET #${Math.floor(Math.random() * 20)}: Estás en cola para entrar.`)}
+                                        style={{ background: '#e67700', color: 'white', border: 'none', padding: '5px 12px', borderRadius: 6, fontWeight: 700, cursor: 'pointer', fontSize: 11 }}>
+                                        🎟️ Pedir Ticket
                                     </button>
                                     <button
-                                        onClick={() => alert("✅ ¡Salud! Cervecita virtual entregada en la barra.")}
-                                        style={{ background: '#fab005', color: '#000', border: 'none', padding: '8px 16px', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
-                                        🍺 Pedir Cervecita
+                                        onClick={() => window.open('https://meet.jit.si/ColladoEuropaConectaJunte', '_blank')}
+                                        style={{ background: '#228be6', color: 'white', border: 'none', padding: '5px 12px', borderRadius: 6, fontWeight: 700, cursor: 'pointer', fontSize: 11 }}>
+                                        📹 Videollamada (Beta)
+                                    </button>
+                                    <button
+                                        onClick={() => alert("☕️ ¡Cafecito virtual servido!")}
+                                        style={{ background: '#fab005', color: '#000', border: 'none', padding: '5px 10px', borderRadius: 6, fontWeight: 700, cursor: 'pointer', fontSize: 10 }}>
+                                        ☕️ Cafecito
                                     </button>
                                 </div>
                             </div>
-                            <div style={{ width: 100, height: 100, opacity: 0.1, display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="hide-mobile">
-                                <FiUsers size={80} />
+                            <div style={{ background: 'white', padding: '6px 12px', borderRadius: 8, border: '1px solid #fab005', textAlign: 'center' }}>
+                                <div style={{ fontSize: 10, fontWeight: 700, color: '#e67700' }}>EN ESPERA</div>
+                                <div style={{ fontSize: 18, fontWeight: 900 }}>{junteState.usersCount}</div>
+                                <div style={{ fontSize: 9 }}>PERSONAS</div>
                             </div>
                         </div>
                     </div>
@@ -511,15 +516,15 @@ function ChatContent() {
                 <div
                     ref={chatContainerRef}
                     style={{
-                        flex: 1, overflowY: 'scroll', padding: '16px',
-                        display: 'flex', flexDirection: 'column', gap: 8,
+                        flex: 1, overflowY: 'auto', padding: '12px',
+                        display: 'flex', flexDirection: 'column', gap: 6,
                         backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
                         backgroundBlendMode: 'overlay',
-                        scrollbarWidth: 'thin'
+                        minHeight: 300
                     }}>
                     {/* BARRA DE DIAGNÓSTICO ULTRA VISIBLE */}
-                    <div style={{ padding: '6px 12px', background: '#000', color: '#00ff00', borderRadius: 8, fontSize: 11, alignSelf: 'center', marginBottom: 15, border: '1px solid #00ff00', fontFamily: 'monospace', fontWeight: 'bold' }}>
-                        DEBUG v1.8.0 | MSGS: {messages.length} | USER: {userName || 'NONE'} ({userId ? 'AUTHED' : 'GUEST'}) | ROOM: {activeRoom}
+                    <div style={{ padding: '4px 10px', background: '#000', color: '#00ff00', borderRadius: 5, fontSize: 10, alignSelf: 'center', marginBottom: 10, border: '1px solid #00ff00', fontFamily: 'monospace' }}>
+                        v1.9.0 | ACTIVE: {messages.length} | USER: {userName || '...'}
                     </div>
 
                     {messages.length === 0 && (
