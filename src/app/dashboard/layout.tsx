@@ -216,7 +216,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <header className="mobile-header" style={{
                     padding: '16px 28px', borderBottom: '1px solid var(--border)',
                     display: 'flex', alignItems: 'center', gap: 16,
-                    background: 'var(--bg-secondary)', position: 'sticky', top: 0, zIndex: 50
+                    background: 'var(--bg-secondary)', zIndex: 50
                 }}>
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
                         background: 'none', border: 'none', color: 'var(--text-secondary)',
@@ -298,7 +298,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 </div>
 
-                <div style={{ padding: '32px 28px' }}>{children}</div>
+                <div style={{
+                    padding: pathname.includes('/chat') ? '16px' : '32px 28px',
+                    flex: 1,
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    {children}
+                </div>
             </div>
 
             <style>{`

@@ -331,7 +331,7 @@ function ChatContent() {
 
     return (
         <div className={`chat-container ${isShaking ? 'shake-animation' : ''}`} style={{
-            display: 'flex', gap: 0, height: 'calc(100vh - 145px)',
+            display: 'flex', gap: 0, flex: 1, minHeight: 400,
             borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border)',
             boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
         }}>
