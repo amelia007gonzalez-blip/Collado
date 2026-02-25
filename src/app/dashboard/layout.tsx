@@ -3,8 +3,9 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { useRadioStore } from '@/lib/store'
 import {
-    FiMessageCircle, FiCalendar, FiGlobe, FiLogOut,
+    FiMessageCircle, FiCalendar, FiLogOut,
     FiMenu, FiX, FiBell, FiUsers, FiHome, FiRadio, FiPlayCircle, FiPauseCircle
 } from 'react-icons/fi'
 
@@ -21,10 +22,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [user, setUser] = useState<{ email?: string; user_metadata?: Record<string, string> } | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const pathname = usePathname()
-    const [isPlayingRadio, setIsPlayingRadio] = useState(false)
-    const [isLoadingRadio, setIsLoadingRadio] = useState(false)
-    const [radioError, setRadioError] = useState(false)
-    const audioRef = useRef<HTMLAudioElement | null>(null)
+
+    // Radio Store
+    const { isPlaying, isLoading, error: radioError, setIsPlaying, setIsLoading, setError } = useRadioStore()
+
+    const audioRef = useRef<HTMLAudioElement>(null)
+    const primaryStream = "https://streaming.z101digital.com/z101"
+    const fallbackStream = "https://stream.zeno.fm/937f4a4c-dc94-4714-96ed-15fed55b237f" // Disco 106
 
     // No necesitamos inicializar New Audio() en el useEffect si usamos la etiqueta <audio>
     // Esto evita duplicidad y conflictos de recursos en el navegador.
@@ -32,34 +36,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const toggleRadio = () => {
         if (!audioRef.current) return
 
-        if (isPlayingRadio) {
+        if (isPlaying) {
             audioRef.current.pause()
             // El estado se actualizará mediante los eventos onPlay/onPause del elemento <audio>
         } else {
-            setRadioError(false)
-            setIsLoadingRadio(true)
-            setIsPlayingRadio(true)
+            setError(null)
+            setIsLoading(true)
 
             // Intentamos primero con Z 101 Digital (Muy estable)
-            const primaryStream = "https://streaming.z101digital.com/z101"
-            const fallbackStream = "https://stream.zeno.fm/937f4a4c-dc94-4714-96ed-15fed55b237f" // Disco 106
-
             audioRef.current.src = primaryStream
             audioRef.current.load()
 
-            audioRef.current.play().catch(e => {
-                console.warn("Primary stream failed, trying fallback...", e)
-                if (audioRef.current) {
-                    audioRef.current.src = fallbackStream
-                    audioRef.current.load()
-                    audioRef.current.play().catch(err => {
-                        console.error("All streams failed", err)
-                        setRadioError(true)
-                        setIsPlayingRadio(false)
-                        setIsLoadingRadio(false)
-                    })
-                }
-            })
+            const playPromise = audioRef.current.play()
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.warn("Primary stream failed, trying fallback...", e)
+                    if (audioRef.current) {
+                        audioRef.current.src = fallbackStream
+                        audioRef.current.load()
+                        audioRef.current.play().catch(err => {
+                            console.error("All streams failed", err)
+                            setError("No se puede conectar con la radio")
+                            setIsLoading(false)
+                            setIsPlaying(false)
+                        })
+                    }
+                })
+            }
         }
     }
 
@@ -226,58 +229,58 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <FiMenu size={22} />
                     </button>
                     <div style={{ flex: 1 }} />
-                    <button style={{
-                        background: 'none', border: 'none', color: 'var(--text-secondary)',
-                        cursor: 'pointer', position: 'relative'
-                    }}>
-                        <FiBell size={20} />
-                        <span style={{
-                            position: 'absolute', top: -4, right: -4,
-                            width: 8, height: 8, borderRadius: '50%',
-                            background: 'var(--red-primary)'
-                        }} />
-                    </button>
 
-                    <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
-                        background: isPlayingRadio ? 'rgba(239, 68, 68, 0.15)' : 'var(--blue-primary)',
-                        border: isPlayingRadio ? '1px solid #ef4444' : 'none',
-                        color: isPlayingRadio ? '#ef4444' : 'white',
-                        padding: '8px 16px', borderRadius: 24, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 13,
-                        transition: 'all 0.3s',
-                        boxShadow: isPlayingRadio ? '0 0 15px rgba(239, 68, 68, 0.4)' : '0 2px 4px rgba(0,45,98,0.2)',
-                    }}
-                        className={isPlayingRadio ? "radio-playing" : ""}
-                    >
-                        {isLoadingRadio ? (
-                            <div className="animate-spin-slow" style={{ width: 18, height: 18, border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%' }} />
-                        ) : (
-                            isPlayingRadio ? <FiPauseCircle size={20} /> : <FiPlayCircle size={20} />
-                        )}
-                        <span>
-                            {isLoadingRadio ? 'CONECTANDO...' : (isPlayingRadio ? 'EN VIVO 🔴' : 'RADIO 🇩🇴')}
-                        </span>
-                        {radioError && !isPlayingRadio && <span style={{ fontSize: 9, color: '#ffaaaa', marginLeft: 4 }}>Error de conexión</span>}
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                        <button style={{
+                            background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white',
+                            cursor: 'pointer', position: 'relative', width: 36, height: 36, borderRadius: '50%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <FiBell size={20} />
+                            <span style={{
+                                position: 'absolute', top: 2, right: 2,
+                                width: 8, height: 8, borderRadius: '50%',
+                                background: '#ef4444', border: '2px solid var(--bg-secondary)'
+                            }} />
+                        </button>
 
-                    <button onClick={handleLogout} style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
-                        color: '#ef4444', padding: '6px 12px', borderRadius: 20,
-                        cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s'
-                    }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)')}
-                    >
-                        <FiLogOut size={14} /> <span className="hide-mobile">Salir</span>
-                    </button>
+                        <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
+                            background: isPlaying ? '#ef4444' : '#CE1126',
+                            border: '2px solid white',
+                            color: 'white',
+                            padding: '8px 16px', borderRadius: 24, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 13,
+                            transition: 'all 0.3s',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                        }}
+                            className={isPlaying ? "radio-playing" : ""}
+                        >
+                            {isLoading ? (
+                                <div className="animate-spin-slow" style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                            ) : (
+                                isPlaying ? <FiPauseCircle size={20} /> : <FiPlayCircle size={20} />
+                            )}
+                            <span style={{ letterSpacing: '0.5px' }}>
+                                {isLoading ? 'CONECTANDO...' : (isPlaying ? 'EN VIVO 🔴' : 'ENCENDER RADIO 🇩🇴')}
+                            </span>
+                        </button>
 
-                    <div style={{
-                        width: 34, height: 34, borderRadius: '50%',
-                        background: 'linear-gradient(135deg, var(--blue-primary), var(--blue-light))',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: 700, fontSize: 13, color: 'white'
-                    }}>{initials}</div>
+                        <button onClick={handleLogout} style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            background: '#1e293b', border: '1px solid #334155',
+                            color: '#cbd5e1', padding: '8px 16px', borderRadius: 20,
+                            cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s'
+                        }}>
+                            <FiLogOut size={16} /> <span className="hide-mobile">Salir</span>
+                        </button>
+
+                        <div style={{
+                            width: 38, height: 38, borderRadius: '50%',
+                            background: 'linear-gradient(135deg, var(--blue-primary), #60a5fa)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: 800, fontSize: 14, color: 'white', border: '2px solid rgba(255,255,255,0.2)'
+                        }}>{initials}</div>
+                    </div>
                 </header>
 
                 {/* Cintillos de Información */}
@@ -349,15 +352,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Emisoras dominicanas de alta disponibilidad */}
             <audio
                 ref={audioRef}
-                onPlay={() => setIsPlayingRadio(true)}
-                onPause={() => setIsPlayingRadio(false)}
-                onPlaying={() => setIsLoadingRadio(false)}
-                onWaiting={() => setIsLoadingRadio(true)}
+                style={{ display: 'none' }}
+                onPlay={() => { setIsPlaying(true); setIsLoading(false); }}
+                onPause={() => setIsPlaying(false)}
+                onWaiting={() => setIsLoading(true)}
+                onCanPlay={() => setIsLoading(false)}
                 onError={() => {
-                    // No hacemos nada aquí porque ya lo manejamos en el catch del play
-                    // pero evitamos que el navegador se queje.
+                    setError("Error de audio")
+                    setIsLoading(false)
+                    setIsPlaying(false)
                 }}
-                preload="none"
             />
         </div>
     )

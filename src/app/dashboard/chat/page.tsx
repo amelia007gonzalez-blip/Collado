@@ -127,6 +127,10 @@ function ChatContent() {
 
     const loadMessages = useCallback(async () => {
         try {
+            // Cargar locales primero
+            const localKey = `pending_msgs_${activeRoom}`
+            const localMsgs = JSON.parse(localStorage.getItem(localKey) || '[]')
+
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
@@ -135,11 +139,20 @@ function ChatContent() {
                 .limit(100)
 
             if (error) throw error;
-            if (!data || data.length === 0) throw new Error("Empty messages array");
 
-            setMessages(data)
-            if (data.length < 3 && !greetedRooms.has(activeRoom)) {
-                loadCollaborators(activeRoom, data);
+            // Combinar con locales (evitando duplicados por ID si ya se guardaron)
+            const combined = data ? [...data] : []
+            localMsgs.forEach((lm: any) => {
+                if (!combined.find(m => m.id === lm.id)) {
+                    combined.push(lm)
+                }
+            })
+
+            if (combined.length === 0) throw new Error("Empty messages array");
+
+            setMessages(combined)
+            if (combined.length < 3 && !greetedRooms.has(activeRoom)) {
+                loadCollaborators(activeRoom, combined);
             }
             setGreetedRooms(prev => new Set(prev).add(activeRoom));
 
@@ -236,32 +249,42 @@ function ChatContent() {
         setSending(true)
         setNewMsg('') // Optimistic clear
 
-        // 1. Optimistic UI: Mostrar el mensaje en pantalla inmediatamente
+        // 1. Optimistic UI + Local Persistence
         const optimisticMsg: Message = {
-            id: `optimistic-${Date.now()}`,
+            id: `opt-${Date.now()}`,
             content: text,
             room: activeRoom,
-            user_id: activeUserId,
-            user_name: activeUserName,
+            user_id: userId,
+            user_name: userName || 'Usuario',
             created_at: new Date().toISOString()
         };
         setMessages(prev => [...prev, optimisticMsg]);
 
-        // 2. Intentar guardar en base de datos
-        const { data, error } = await supabase.from('messages').insert({
-            content: text,
-            room: activeRoom,
-            user_id: activeUserId,
-            user_name: activeUserName,
-        }).select().single()
+        // Guardar en local temporalmente por si falla la red
+        const localKey = `pending_msgs_${activeRoom}`
+        const currentLocals = JSON.parse(localStorage.getItem(localKey) || '[]')
+        localStorage.setItem(localKey, JSON.stringify([...currentLocals, optimisticMsg]))
 
-        if (error) {
-            console.error("Supabase Error (El mensaje se muestra localmente):", error);
-            // Ya no bloqueamos UI, el mensaje ya se insertó optimisticamente.
-            // alert("El mensaje se insertó localmente, pero hubo un error guardándolo en base de datos: " + error.message);
-        } else if (data) {
-            // Reemplazar el mensaje optimista por el real de base de datos
+        // 2. Intentar guardar en base de datos
+        try {
+            const { data, error } = await supabase.from('messages').insert({
+                content: text,
+                room: activeRoom,
+                user_id: userId,
+                user_name: userName,
+            }).select().single()
+
+            if (error) throw error;
+
+            // Limpiar de local si tuvo éxito
+            const updatedLocals = JSON.parse(localStorage.getItem(localKey) || '[]')
+            localStorage.setItem(localKey, JSON.stringify(updatedLocals.filter((m: any) => m.id !== optimisticMsg.id)))
+
+            // Actualizar el mensaje optimista con el real de la DB
             setMessages(prev => prev.map(m => m.id === optimisticMsg.id ? data : m));
+        } catch (error) {
+            console.error("Error persistiendo mensaje:", error)
+            // No alertamos para no molestar, el mensaje ya está en pantalla y en localStorage
         }
 
         // Trigger AI
@@ -475,71 +498,39 @@ function ChatContent() {
                         backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
                         backgroundBlendMode: 'overlay'
                     }}>
+                    <div style={{ padding: '4px 12px', background: 'rgba(0,0,0,0.05)', borderRadius: 8, fontSize: 10, alignSelf: 'center', marginBottom: 10 }}>
+                        DIAGNÓSTICO: {messages.length} mensajes cargados en sala {activeRoom}
+                    </div>
+
                     {messages.length === 0 && (
-                        <div style={{ textAlign: 'center', margin: 'auto', background: 'rgba(255,255,255,0.8)', padding: '12px 24px', borderRadius: 20, fontSize: 14, boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
-                            🇩🇴 Sé el primero en escribir en #{activeRoom}. Mencionando a <b>@Colladin</b> recibirás una respuesta de nuestra IA.
+                        <div style={{ textAlign: 'center', margin: 'auto', background: 'white', color: '#666', padding: '20px', borderRadius: 16, border: '1px dashed #ccc' }}>
+                            Aún no hay mensajes. ¡Sé el primero en saludar!
                         </div>
                     )}
 
                     {messages.map((msg, i) => {
                         const isOwn = msg.user_id === userId
-                        const isAi = msg.is_ai || msg.user_name === 'Colladin (IA)'
-                        const showAvatar = i === 0 || messages[i - 1].user_id !== msg.user_id
-
                         return (
                             <div key={msg.id} style={{
-                                display: 'flex', flexDirection: isOwn ? 'row-reverse' : 'row',
-                                gap: 8, marginTop: showAvatar ? 8 : 0, maxWidth: '85%',
-                                alignSelf: isOwn ? 'flex-end' : 'flex-start'
+                                width: '100%',
+                                display: 'flex',
+                                justifyContent: isOwn ? 'flex-end' : 'flex-start',
+                                marginBottom: 4
                             }}>
-                                {!isOwn && showAvatar && (
-                                    <div style={{
-                                        width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                                        background: isAi ? '#10b981' : 'var(--blue-primary)',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: 10, fontWeight: 700, color: 'white', marginTop: 18
-                                    }}>
-                                        {isAi ? 'IA' : msg.user_name?.slice(0, 2).toUpperCase()}
-                                    </div>
-                                )}
-                                {!isOwn && !showAvatar && <div style={{ width: 28 }} />}
-
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    {!isOwn && showAvatar && (
-                                        <div style={{ fontSize: 12, color: isAi ? '#10b981' : 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, marginLeft: 4 }}>
-                                            {msg.user_name}
-                                        </div>
-                                    )}
-                                    <div style={{
-                                        padding: msg.media_url ? '4px' : '8px 14px',
-                                        borderRadius: isOwn ? '12px 0px 12px 12px' : '0px 12px 12px 12px',
-                                        background: isOwn ? '#dcf8c6' : '#ffffff', // WhatsApp aesthetic
-                                        color: '#303030',
-                                        fontSize: 14, lineHeight: 1.4,
-                                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                        position: 'relative'
-                                    }}>
-                                        {msg.media_url ? (
-                                            <div>
-                                                <img src={msg.media_url} alt="Media" style={{ width: '100%', maxWidth: 280, borderRadius: 8, display: 'block' }} loading="lazy" />
-                                                <div style={{ padding: '0px 8px 4px', fontSize: 13, marginTop: 4 }}>
-                                                    {msg.content !== '📷 Imagen subida' && msg.content}
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            renderTextWithMentions(msg.content)
-                                        )}
-
-                                        <div style={{
-                                            display: 'flex', alignItems: 'center', gap: 4,
-                                            justifyContent: 'flex-end', marginTop: 4,
-                                            fontSize: 10, color: '#888'
-                                        }}>
-                                            {formatTime(msg.created_at)}
-                                            {isOwn && (
-                                                <span style={{ color: '#34b7f1', fontSize: 14 }}>✓✓</span>
-                                            )}
-                                        </div>
+                                <div style={{
+                                    maxWidth: '80%',
+                                    padding: '10px 14px',
+                                    borderRadius: 16,
+                                    background: isOwn ? '#DCF8C6' : '#FFFFFF',
+                                    color: '#111',
+                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}>
+                                    {!isOwn && <div style={{ fontWeight: 800, fontSize: 12, color: '#075E54', marginBottom: 2 }}>{msg.user_name}</div>}
+                                    <div style={{ fontSize: 14 }}>{msg.content}</div>
+                                    <div style={{ fontSize: 9, color: '#999', alignSelf: 'flex-end', marginTop: 4 }}>
+                                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                 </div>
                             </div>
