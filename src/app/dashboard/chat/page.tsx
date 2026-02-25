@@ -365,28 +365,28 @@ function ChatContent() {
         }}>
             {/* Room list */}
             <div style={{
-                width: 240, background: 'var(--bg-secondary)',
+                width: 200, background: 'var(--bg-secondary)',
                 borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', flexShrink: 0
             }} className="hide-mobile">
-                <div style={{ padding: '20px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1 }}>SALAS DE CHAT</div>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: 1 }}>SALAS DE CHAT</div>
                 </div>
-                <div style={{ overflowY: 'auto', flex: 1, padding: '12px' }}>
+                <div style={{ overflowY: 'auto', flex: 1, padding: '8px' }}>
                     {ROOMS.map(r => (
                         <button
                             key={r.id}
                             onClick={() => setActiveRoom(r.id)}
                             style={{
-                                width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                                padding: '12px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                                width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+                                padding: '10px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
                                 background: activeRoom === r.id ? 'var(--blue-light)' : 'transparent',
                                 color: activeRoom === r.id ? 'white' : 'var(--text-secondary)',
                                 fontWeight: activeRoom === r.id ? 600 : 500,
-                                fontSize: 14, textAlign: 'left', transition: 'all 0.2s',
-                                marginBottom: 4
+                                fontSize: 13, textAlign: 'left', transition: 'all 0.2s',
+                                marginBottom: 2
                             }}
                         >
-                            <FiHash size={16} color={activeRoom === r.id ? "white" : "var(--text-muted)"} /> {r.label}
+                            <FiHash size={14} color={activeRoom === r.id ? "white" : "var(--text-muted)"} /> {r.label}
                         </button>
                     ))}
                 </div>
@@ -396,30 +396,30 @@ function ChatContent() {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#ece5dd' /* WhatsApp BG style */ }}>
                 {/* Header */}
                 <div style={{
-                    padding: '12px 20px', borderBottom: '1px solid rgba(0,0,0,0.08)',
-                    background: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '8px 16px', borderBottom: '1px solid rgba(0,0,0,0.08)',
+                    background: 'var(--bg-card)', display: 'flex', alignItems: 'center', gap: 10,
                     boxShadow: '0 1px 3px rgba(0,0,0,0.05)', zIndex: 10, flexWrap: 'wrap'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
                         <button onClick={() => window.location.href = '/dashboard'} style={{
-                            background: 'var(--blue-light)', border: 'none', padding: '10px 16px',
-                            borderRadius: 12, color: 'white', cursor: 'pointer',
-                            fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6,
-                            boxShadow: '0 2px 4px rgba(0,45,98,0.2)'
+                            background: 'var(--blue-light)', border: 'none', padding: '8px 12px',
+                            borderRadius: 10, color: 'white', cursor: 'pointer',
+                            fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6,
+                            boxShadow: '0 1px 3px rgba(0,45,98,0.2)'
                         }}>
                             🏠 Inicio
                         </button>
                         <div style={{ width: 1, height: 24, background: '#ddd' }} className="hide-mobile" />
                         <div style={{
-                            width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue-primary), var(--red-primary))',
+                            width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--blue-primary), var(--red-primary))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
                         }} className="hide-mobile">
-                            <FiHash size={18} />
+                            <FiHash size={16} />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--text-primary)' }}>{activeRoom}</div>
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }} className="hide-mobile">
-                                {activeRoom === 'La Sala del Junte' ? '🤝 Sala de conexión especial' : `${messages.length} mensajes • Diáspora en acción`}
+                            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>{activeRoom}</div>
+                            <div style={{ fontSize: 10, color: 'var(--text-muted)' }} className="hide-mobile">
+                                {messages.length} mensajes
                             </div>
                         </div>
 
@@ -436,10 +436,10 @@ function ChatContent() {
 
                         <button onClick={sendZumbido} title="Enviar Zumbido" style={{
                             background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
-                            border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 12
+                            border: 'none', padding: '6px 10px', borderRadius: 8, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 11
                         }} className="hide-mobile">
-                            <FiBell size={16} /> Zumbido
+                            <FiBell size={14} /> Zumbido
                         </button>
                     </div>
                 </div>
@@ -478,27 +478,27 @@ function ChatContent() {
                 {/* Banner de @Colladin - IA Conectada */}
                 <div style={{
                     background: 'linear-gradient(90deg, #eff6ff 0%, #ffffff 100%)',
-                    padding: '10px 20px',
+                    padding: '8px 16px',
                     borderBottom: '1px solid #dbeafe',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 15,
+                    gap: 12,
                     position: 'relative',
                     overflow: 'hidden'
                 }}>
                     <div style={{
-                        width: 42, height: 42, borderRadius: '50%', background: '#10b981',
+                        width: 34, height: 34, borderRadius: '50%', background: '#10b981',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'white', boxShadow: '0 0 10px rgba(16, 185, 129, 0.3)', flexShrink: 0
+                        color: 'white', boxShadow: '0 0 8px rgba(16, 185, 129, 0.3)', flexShrink: 0
                     }}>
-                        <FiSmile size={24} />
+                        <FiSmile size={20} />
                     </div>
                     <div>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: '#065f46', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            🤖 ASISTENTE VIRTUAL: @COLLADIN <span style={{ fontSize: 9, background: '#10b981', color: 'white', padding: '1px 5px', borderRadius: 4 }}>ONLINE</span>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: '#065f46', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            🤖 @COLLADIN <span style={{ fontSize: 8, background: '#10b981', color: 'white', padding: '1px 4px', borderRadius: 4 }}>ONLINE</span>
                         </div>
-                        <div style={{ fontSize: 11, color: '#047857', marginTop: 2 }}>
-                            Pregúntame sobre <b>turismo, política, JCE, o David Collado</b> mencionándome. Ej: <i>"@Colladin ¿cuáles son los logros en turismo?"</i>
+                        <div style={{ fontSize: 10, color: '#047857', marginTop: 1 }}>
+                            Pregúntame sobre <b>David Collado</b> mencionándome.
                         </div>
                     </div>
                     <div style={{ position: 'absolute', right: -10, top: -10, opacity: 0.05 }}>
@@ -510,10 +510,11 @@ function ChatContent() {
                 <div
                     ref={chatContainerRef}
                     style={{
-                        flex: 1, overflowY: 'auto', padding: '24px',
-                        display: 'flex', flexDirection: 'column', gap: 12,
+                        flex: 1, overflowY: 'scroll', padding: '16px',
+                        display: 'flex', flexDirection: 'column', gap: 8,
                         backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
-                        backgroundBlendMode: 'overlay'
+                        backgroundBlendMode: 'overlay',
+                        scrollbarWidth: 'thin'
                     }}>
                     <div style={{ padding: '4px 12px', background: 'rgba(0,0,0,0.05)', borderRadius: 8, fontSize: 10, alignSelf: 'center', marginBottom: 10 }}>
                         DIAGNÓSTICO: {messages.length} mensajes cargados en sala {activeRoom}

@@ -96,41 +96,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <div className="flag-stripe" />
                 {/* Logo */}
-                <div style={{ padding: '24px 20px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ padding: '16px 16px', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{
-                            width: 44, height: 44, borderRadius: '50%',
+                            width: 36, height: 36, borderRadius: '50%',
                             background: 'linear-gradient(135deg, var(--blue-primary), var(--red-primary))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 900, fontSize: 18, color: 'white', flexShrink: 0
+                            fontWeight: 900, fontSize: 14, color: 'white', flexShrink: 0
                         }}>C</div>
                         <div>
-                            <div style={{ fontWeight: 800, fontSize: 14 }}>Collado Europa</div>
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Conecta</div>
+                            <div style={{ fontWeight: 800, fontSize: 13 }}>Collado Europa</div>
+                            <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Conecta</div>
                         </div>
                         <button onClick={() => setSidebarOpen(false)} style={{
                             marginLeft: 'auto', background: 'none', border: 'none',
                             color: 'var(--text-muted)', cursor: 'pointer', display: 'none'
                         }} className="close-sidebar">
-                            <FiX size={20} />
+                            <FiX size={18} />
                         </button>
                     </div>
                 </div>
 
                 {/* User info */}
-                <div style={{ padding: '20px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{
-                            width: 40, height: 40, borderRadius: '50%',
+                            width: 32, height: 32, borderRadius: '50%',
                             background: 'linear-gradient(135deg, var(--blue-primary), var(--blue-light))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 700, fontSize: 14, color: 'white', flexShrink: 0
+                            fontWeight: 700, fontSize: 12, color: 'white', flexShrink: 0
                         }}>{initials}</div>
                         <div style={{ overflow: 'hidden' }}>
-                            <div style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div style={{ fontWeight: 600, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {userName}
                             </div>
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{userCountry}</div>
+                            <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{userCountry}</div>
                         </div>
                     </div>
                 </div>
@@ -156,18 +156,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 href={item.href}
                                 onClick={() => setSidebarOpen(false)}
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: 12,
-                                    padding: '11px 12px', borderRadius: 10, marginBottom: 4,
+                                    display: 'flex', alignItems: 'center', gap: 10,
+                                    padding: '8px 12px', borderRadius: 8, marginBottom: 2,
                                     textDecoration: 'none', transition: 'all 0.2s',
                                     background: active ? 'linear-gradient(135deg, rgba(0,45,98,0.4), rgba(0,45,98,0.2))' : 'transparent',
                                     color: active ? '#60a5fa' : 'var(--text-secondary)',
                                     border: active ? '1px solid rgba(0,45,98,0.4)' : '1px solid transparent',
-                                    fontWeight: active ? 600 : 400, fontSize: 14,
+                                    fontWeight: active ? 600 : 400, fontSize: 13,
                                 }}
                             >
                                 {item.icon}
                                 {item.label}
-                                {active && <div style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: '#60a5fa' }} />}
+                                {active && <div style={{ marginLeft: 'auto', width: 5, height: 5, borderRadius: '50%', background: '#60a5fa' }} />}
                             </Link>
                         )
                     })}
@@ -216,13 +216,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Main */}
             <div className={`main-content ${sidebarOpen ? 'shifted' : ''}`}>
                 {/* Top bar */}
-                <header className="mobile-header" style={{
-                    height: 80, minHeight: 80, padding: '0 28px', borderBottom: '2px solid #ce1126',
-                    display: 'flex', alignItems: 'center', gap: 16,
-                    background: 'var(--bg-secondary)', zIndex: 50,
-                    flexShrink: 0, position: 'relative', width: '100%'
+                <header className="app-header" style={{
+                    height: 54, minHeight: 54, padding: '0 20px', borderBottom: '2px solid #ce1126',
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    background: 'var(--bg-secondary)', zIndex: 105,
+                    flexShrink: 0, position: 'relative', width: '100%',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
                 }}>
-                    <div style={{ position: 'absolute', top: 0, right: 0, fontSize: 8, color: '#444', padding: '2px 4px' }}>v1.7.0b</div>
+                    <div style={{ position: 'absolute', top: 0, right: 0, fontSize: 8, color: '#666', padding: '2px 4px' }}>v1.7.0c</div>
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
                         background: 'none', border: 'none', color: 'var(--text-secondary)',
                         cursor: 'pointer', display: 'none'
@@ -234,79 +235,79 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
                         <button style={{
                             background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white',
-                            cursor: 'pointer', position: 'relative', width: 36, height: 36, borderRadius: '50%',
+                            cursor: 'pointer', position: 'relative', width: 32, height: 32, borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center'
                         }}>
-                            <FiBell size={20} />
+                            <FiBell size={18} />
                             <span style={{
                                 position: 'absolute', top: 2, right: 2,
-                                width: 8, height: 8, borderRadius: '50%',
-                                background: '#ef4444', border: '2px solid var(--bg-secondary)'
+                                width: 6, height: 6, borderRadius: '50%',
+                                background: '#ef4444', border: '1px solid var(--bg-secondary)'
                             }} />
                         </button>
 
                         <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
                             background: isPlaying ? '#ef4444' : '#CE1126',
-                            border: '2px solid white',
+                            border: '1px solid white',
                             color: 'white',
-                            padding: '8px 16px', borderRadius: 24, cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 13,
+                            padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 12,
                             transition: 'all 0.3s',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                         }}
                             className={isPlaying ? "radio-playing" : ""}
                         >
                             {isLoading ? (
-                                <div className="animate-spin-slow" style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                                <div className="animate-spin-slow" style={{ width: 14, height: 14, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
                             ) : (
-                                isPlaying ? <FiPauseCircle size={20} /> : <FiPlayCircle size={20} />
+                                isPlaying ? <FiPauseCircle size={18} /> : <FiPlayCircle size={18} />
                             )}
                             <span style={{ letterSpacing: '0.5px' }}>
-                                {isLoading ? 'CONECTANDO...' : (isPlaying ? 'EN VIVO 🔴' : 'ENCENDER RADIO 🇩🇴')}
+                                {isLoading ? '...' : (isPlaying ? 'EN VIVO' : 'RADIO 🇩🇴')}
                             </span>
                         </button>
 
                         <button onClick={handleLogout} style={{
-                            display: 'flex', alignItems: 'center', gap: 8,
+                            display: 'flex', alignItems: 'center', gap: 6,
                             background: '#1e293b', border: '1px solid #334155',
-                            color: '#cbd5e1', padding: '8px 16px', borderRadius: 20,
-                            cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s'
+                            color: '#cbd5e1', padding: '6px 12px', borderRadius: 18,
+                            cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'all 0.2s'
                         }}>
-                            <FiLogOut size={16} /> <span className="hide-mobile">Salir</span>
+                            <FiLogOut size={14} /> <span className="hide-mobile">Salir</span>
                         </button>
 
                         <div style={{
-                            width: 38, height: 38, borderRadius: '50%',
+                            width: 32, height: 32, borderRadius: '50%',
                             background: 'linear-gradient(135deg, var(--blue-primary), #60a5fa)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontWeight: 800, fontSize: 14, color: 'white', border: '2px solid rgba(255,255,255,0.2)'
+                            fontWeight: 800, fontSize: 12, color: 'white', border: '1px solid rgba(255,255,255,0.2)'
                         }}>{initials}</div>
                     </div>
                 </header>
 
                 {/* Cintillos de Información */}
-                <div style={{ background: '#fefce8', borderBottom: '1px solid #fef3c7', padding: '4px 0', overflow: 'hidden', flexShrink: 0 }}>
+                <div style={{ background: '#fefce8', borderBottom: '1px solid #fef3c7', padding: '2px 0', overflow: 'hidden', flexShrink: 0 }}>
                     <div className="ticker-wrap" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
-                        <div className="ticker-item" style={{ fontSize: 11, fontWeight: 700, color: '#854d0e', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eab308', color: 'white', width: 20, height: 20, borderRadius: '50%', flexShrink: 0, boxShadow: '0 0 5px rgba(234, 179, 8, 0.4)' }}>
-                                <FiRadio size={12} />
+                        <div className="ticker-item" style={{ fontSize: 10, fontWeight: 700, color: '#854d0e', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eab308', color: 'white', width: 14, height: 14, borderRadius: '50%', flexShrink: 0 }}>
+                                <FiRadio size={9} />
                             </div>
                             RADIO: Sintoniza Z 101 Digital y Disco 106 - El pulso de la República Dominicana en Europa.
                         </div>
                     </div>
                 </div>
-                <div style={{ background: 'var(--blue-primary)', color: 'white', padding: '6px 0', overflow: 'hidden', flexShrink: 0 }}>
+                <div style={{ background: 'var(--blue-primary)', color: 'white', padding: '4px 0', overflow: 'hidden', flexShrink: 0 }}>
                     <div className="ticker-news" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
-                        <div className="ticker-content" style={{ fontSize: 13, fontWeight: 500, padding: '0 40px' }}>
+                        <div className="ticker-content" style={{ fontSize: 11, fontWeight: 500, padding: '0 40px' }}>
                             🇩🇴 ÚLTIMAS NOTICIAS: David Collado reconocido como "Ministro de Las Américas" por ONU Turismo • RD alcanza cifra récord de 11 millones de visitantes • Se proyecta un crecimiento histórico para el sector turístico en 2025 • Inauguración de nuevos malecones y playas públicas en todo el país • Presidente Abinader destaca el papel de la diáspora en el desarrollo nacional.
                         </div>
                     </div>
                 </div>
 
                 <div style={{
-                    padding: pathname.includes('/chat') ? '16px' : '32px 28px',
+                    padding: pathname.includes('/chat') ? '12px' : '20px 24px',
                     flex: 1,
-                    overflowY: 'auto',
+                    overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
@@ -330,8 +331,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           .mobile-overlay { display: block !important; }
           .close-sidebar { display: block !important; }
           .hide-mobile { display: none !important; }
-          .mobile-header { padding: 12px 16px !important; flex-wrap: wrap; gap: 8px !important; justify-content: space-between; }
-          .mobile-header > button[title="Radio Dominicana Online"] { order: 4; width: 100%; justify-content: center; margin-top: 4px; }
+          .app-header { padding: 8px 12px !important; flex-wrap: wrap; gap: 6px !important; height: auto !important; min-height: 48px !important; }
+          .app-header > button[title="Radio Dominicana Online"] { order: 4; width: 100%; justify-content: center; margin-top: 2px; height: 36px; }
         }
         .radio-playing {
             animation: pulse-radio 2s infinite;

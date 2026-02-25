@@ -330,7 +330,7 @@ body {
 }
 
 .sidebar {
-  width: 280px;
+  width: 240px;
   height: 100vh;
   height: 100dvh;
   background: var(--bg-secondary);
@@ -363,7 +363,7 @@ body {
 }
 
 .main-content {
-  margin-left: 280px;
+  margin-left: 240px;
   flex: 1;
   height: 100vh;
   display: flex;
@@ -383,7 +383,7 @@ body {
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
-    width: 280px;
+    width: 240px;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
   }
 
@@ -397,7 +397,7 @@ body {
   }
 
   .main-content.shifted {
-    transform: translateX(280px);
+    transform: translateX(240px);
   }
 }
 
