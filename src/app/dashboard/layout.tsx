@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import {
     FiMessageCircle, FiCalendar, FiGlobe, FiLogOut,
@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter()
     const [user, setUser] = useState<{ email?: string; user_metadata?: Record<string, string> } | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(false)
-    const [pathname, setPathname] = useState('')
+    const pathname = usePathname()
     const [isPlayingRadio, setIsPlayingRadio] = useState(false)
     const [isLoadingRadio, setIsLoadingRadio] = useState(false)
     const [radioError, setRadioError] = useState(false)
@@ -64,7 +64,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     useEffect(() => {
-        if (typeof window !== 'undefined') setPathname(window.location.pathname)
         supabase.auth.getUser().then(({ data }) => {
             if (!data.user) router.push('/login')
             else setUser(data.user)
@@ -212,7 +211,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </aside>
 
             {/* Main */}
-            <div className="main-content">
+            <div className={`main-content ${sidebarOpen ? 'shifted' : ''}`}>
                 {/* Top bar */}
                 <header style={{
                     padding: '16px 28px', borderBottom: '1px solid var(--border)',
@@ -284,7 +283,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div style={{ background: '#fefce8', borderBottom: '1px solid #fef3c7', padding: '4px 0', overflow: 'hidden' }}>
                     <div className="ticker-wrap" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
                         <div className="ticker-item" style={{ fontSize: 11, fontWeight: 700, color: '#854d0e', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            📻 LA RADIO: Sintoniza Z 101 Digital y Disco 106 - El pulso de la República Dominicana en Europa.
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eab308', color: 'white', width: 20, height: 20, borderRadius: '50%', flexShrink: 0, boxShadow: '0 0 5px rgba(234, 179, 8, 0.4)' }}>
+                                <FiRadio size={12} />
+                            </div>
+                            RADIO: Sintoniza Z 101 Digital y Disco 106 - El pulso de la República Dominicana en Europa.
                         </div>
                     </div>
                 </div>

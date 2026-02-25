@@ -49,6 +49,24 @@ function ChatContent() {
     const [isShaking, setIsShaking] = useState(false)
     const [greetedRooms, setGreetedRooms] = useState<Set<string>>(new Set())
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const chatContainerRef = useRef<HTMLDivElement>(null)
+
+    // Sala del Junte Autonomy
+    const [junteState, setJunteState] = useState<{ status: 'LIBRE' | 'OCUPADA', usersCount: number, waitTimeMinutes: number }>({ status: 'LIBRE', usersCount: 2, waitTimeMinutes: 0 });
+
+    useEffect(() => {
+        const rollDynamics = () => {
+            const ocupada = Math.random() > 0.4;
+            setJunteState({
+                status: ocupada ? 'OCUPADA' : 'LIBRE',
+                usersCount: ocupada ? Math.floor(Math.random() * 15) + 5 : Math.floor(Math.random() * 4) + 1,
+                waitTimeMinutes: ocupada ? Math.floor(Math.random() * 20) + 2 : 0
+            });
+        };
+        rollDynamics();
+        const interval = setInterval(rollDynamics, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -148,7 +166,9 @@ function ChatContent() {
     }, [activeRoom, loadMessages])
 
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+        }
     }, [messages])
 
     const handleZumbido = () => {
@@ -341,11 +361,11 @@ function ChatContent() {
 
                         {activeRoom === 'La Sala del Junte' && (
                             <div style={{ display: 'flex', gap: 8 }}>
-                                <div style={{ background: '#10b981', color: 'white', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>
-                                    SALA ABIERTA
+                                <div style={{ background: junteState.status === 'LIBRE' ? '#10b981' : '#f59e0b', color: 'white', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>
+                                    {junteState.status === 'LIBRE' ? 'SALA ABIERTA' : `ESPERA: ${junteState.waitTimeMinutes} MIN`}
                                 </div>
                                 <div style={{ background: 'rgba(0,0,0,0.05)', padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700 }}>
-                                    🟢 2 activos
+                                    {junteState.status === 'LIBRE' ? '🟢' : '🟡'} {junteState.usersCount} activos
                                 </div>
                             </div>
                         )}
@@ -365,9 +385,9 @@ function ChatContent() {
                         <div style={{ fontWeight: 700, color: 'var(--blue-primary)', marginBottom: 4 }}>
                             🚀 DINÁMICA DE "EL JUNTE":
                         </div>
-                        Esta es una sala especial donde al reunirse <b>5 personas</b> pueden iniciar un directo streaming de 20 min.
+                        Esta es una sala especial donde al reunirse <b>5 personas</b> pueden iniciar un directo streaming de 20 min. {junteState.status === 'OCUPADA' ? 'Actualmente hay una sesión en progreso.' : '¡La sala está libre! Únete a la fila para el próximo Junte.'}
                         <div style={{ marginTop: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
-                            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: 11 }}>Solicitar Turno (Ticket)</button>
+                            <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: 11 }}>{junteState.status === 'OCUPADA' ? 'Solicitar Turno (Ticket)' : 'Entrar a la Sala'}</button>
                             <span style={{ fontSize: 11, color: '#888' }}>Tema actual sugerido: <b>Mejorar la seguridad del turista en Sto. Dgo.</b></span>
                         </div>
                     </div>
@@ -405,12 +425,14 @@ function ChatContent() {
                 </div>
 
                 {/* Messages */}
-                <div style={{
-                    flex: 1, overflowY: 'auto', padding: '24px',
-                    display: 'flex', flexDirection: 'column', gap: 12,
-                    backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
-                    backgroundBlendMode: 'overlay'
-                }}>
+                <div
+                    ref={chatContainerRef}
+                    style={{
+                        flex: 1, overflowY: 'auto', padding: '24px',
+                        display: 'flex', flexDirection: 'column', gap: 12,
+                        backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
+                        backgroundBlendMode: 'overlay'
+                    }}>
                     {messages.length === 0 && (
                         <div style={{ textAlign: 'center', margin: 'auto', background: 'rgba(255,255,255,0.8)', padding: '12px 24px', borderRadius: 20, fontSize: 14, boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
                             🇩🇴 Sé el primero en escribir en #{activeRoom}. Mencionando a <b>@Colladin</b> recibirás una respuesta de nuestra IA.
