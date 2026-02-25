@@ -52,6 +52,31 @@ function ChatContent() {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const chatContainerRef = useRef<HTMLDivElement>(null)
     const [junteState, setJunteState] = useState<{ status: 'LIBRE' | 'OCUPADA', usersCount: number, waitTimeMinutes: number }>({ status: 'LIBRE', usersCount: 2, waitTimeMinutes: 0 });
+    const [junteTimer, setJunteTimer] = useState(15 * 60); // 15 minutos en segundos
+    const [junteTopic, setJunteTopic] = useState('Mejorar el Turismo en RD vs Europa');
+
+    useEffect(() => {
+        if (junteState.status === 'OCUPADA') {
+            const timer = setInterval(() => {
+                setJunteTimer(prev => (prev > 0 ? prev - 1 : 0));
+            }, 1000);
+            return () => clearInterval(timer);
+        }
+    }, [junteState.status]);
+
+    const formatCountdown = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
+
+    const handleTicketRequest = () => {
+        const topic = prompt("¿Qué tema te gustaría debatir en el Junte?", "Protección del turista en tierras dominicanas");
+        if (topic) {
+            setJunteTopic(topic);
+            alert(`✅ TICKET #${Math.floor(Math.random() * 999)}: Estás en cola. Tema propuesto: "${topic}"`);
+        }
+    };
 
     useEffect(() => {
         const rollDynamics = () => {
@@ -61,6 +86,7 @@ function ChatContent() {
                 usersCount: ocupada ? Math.floor(Math.random() * 15) + 5 : Math.floor(Math.random() * 4) + 1,
                 waitTimeMinutes: ocupada ? Math.floor(Math.random() * 20) + 2 : 0
             });
+            if (ocupada) setJunteTimer(15 * 60 + Math.floor(Math.random() * 300));
         };
         rollDynamics();
         const interval = setInterval(rollDynamics, 60000);
@@ -220,17 +246,30 @@ function ChatContent() {
 
     const sendAIResponse = async (room: string) => {
         const responses = [
-            "Colladin: ¡Hola! En República Dominicana el turismo sigue creciendo a niveles históricos, y para el 2028 esperamos grandes cosas.",
-            "Colladin: ¡Saludos desde la IA! La diáspora europea es parte vital de nuestra economía. 💪 ¿De qué país nos escribes?",
-            "Colladin: Hablando de política, las propuestas para fortalecer nuestros lazos con la JCE son una prioridad para nosotros.",
-            "Colladin: ¿Alguien más extraña el mangú? 🇩🇴 ¡Sigamos conectando y ayudando a nuestra gente!",
+            "Colladin: ¡Hola! En República Dominicana el turismo sigue creciendo a niveles históricos bajo la gestión de David Collado.",
+            "Colladin: ¡Saludos! David Collado ha transformado los malecones y playas, creando espacios dignos para todos.",
+            "Colladin: ¿Sabías que RD rompió el récord de 11 millones de turistas? Es un hito para David y el país.",
+            "Colladin: David Collado siempre dice que el turismo es el petróleo de RD. ¡Sigamos apoyando su visión!",
         ]
         const randomResp = responses[Math.floor(Math.random() * responses.length)]
 
+        // 1. Optimistic Feedback for @Colladin
+        const aiMsg: Message = {
+            id: `ai-resp-${Date.now()}`,
+            content: randomResp,
+            created_at: new Date().toISOString(),
+            user_id: 'colladin',
+            room: room,
+            user_name: 'Colladin (IA)',
+            is_ai: true
+        };
+        setMessages(prev => [...prev, aiMsg]);
+
+        // 2. Persist to DB
         await supabase.from('messages').insert({
             content: randomResp,
             room: room,
-            user_id: '00000000-0000-0000-0000-000000000000', // Mock AI uuid
+            user_id: '00000000-0000-0000-0000-000000000000',
             user_name: 'Colladin (IA)',
             is_ai: true
         })
@@ -476,15 +515,15 @@ function ChatContent() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
                             <div style={{ flex: '1 1 280px' }}>
                                 <div style={{ fontWeight: 800, color: '#e67700', fontSize: 13, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    🚀 JUNTE ACTIVO: {junteState.status}
+                                    🚀 JUNTE ACTIVO: {junteState.status} {junteState.status === 'OCUPADA' && <span style={{ background: '#ff0000', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 11, animation: 'pulse-timer 1.5s infinite' }}>{formatCountdown(junteTimer)}</span>}
                                 </div>
                                 <div style={{ lineHeight: 1.3 }}>
-                                    Capacidad: 5 personas. {junteState.status === 'LIBRE' ? '¡Entra y pide tu turno!' : `Sala ocupada. Espera: ${junteState.waitTimeMinutes} min.`}
-                                    <br />Tema actual: <b>Seguridad Ciudadana</b>
+                                    Capacidad: 5 personas. {junteState.status === 'LIBRE' ? '¡Entra ahora!' : `Espera: ${junteState.waitTimeMinutes} min.`}
+                                    <br />Tema: <b style={{ color: '#d9480f' }}>{junteTopic}</b>
                                 </div>
                                 <div style={{ marginTop: 6, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                                     <button
-                                        onClick={() => alert(`✅ TICKET #${Math.floor(Math.random() * 20)}: Estás en cola para entrar.`)}
+                                        onClick={handleTicketRequest}
                                         style={{ background: '#e67700', color: 'white', border: 'none', padding: '5px 12px', borderRadius: 6, fontWeight: 700, cursor: 'pointer', fontSize: 11 }}>
                                         🎟️ Pedir Ticket
                                     </button>
@@ -669,6 +708,11 @@ function ChatContent() {
             </div>
 
             <style>{`
+                @keyframes pulse-timer {
+                    0% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.05); opacity: 0.8; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
                 .shake-animation {
                     animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
                 }
