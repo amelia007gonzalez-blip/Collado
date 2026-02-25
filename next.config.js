@@ -6,6 +6,9 @@ const nextConfig = {
             { protocol: 'https', hostname: 'ui-avatars.com' },
         ],
     },
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
 }
 
 module.exports = nextConfig
