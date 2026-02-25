@@ -95,50 +95,35 @@ function ChatContent() {
 
     const bottomRef = useRef<HTMLDivElement>(null)
 
-    // Simulador de diálogos enriquecidos con logros de David Collado
-    const loadCollaborators = useCallback((currentRoom: string, currentMessages: Message[]) => {
-        if (currentMessages.length > 5) return;
+    // Simulador de diálogos persistentes con logros de David Collado
+    const loadCollaborators = useCallback(async (currentRoom: string, currentMessages: Message[]) => {
+        if (currentMessages.length > 0) return; // Solo actuar si la sala está vacía
+
         const bots = [
             {
-                id: 'bot-1', name: 'Laura Gómez', color: '#fca5a5',
-                msg: `¿Vieron que David Collado fue reconocido como "Ministro de Las Américas" por ONU Turismo? Es un orgullo ver cómo ha puesto el país en el mapa mundial. ¡11 millones de turistas no han llegado por casualidad!`
+                id: 'bot-1', name: 'Laura Gómez',
+                msg: `¿Vieron que David Collado fue reconocido como "Ministro de Las Américas"? ¡11 millones de turistas no han llegado por casualidad!`
             },
             {
-                id: 'bot-2', name: 'Carlos🇩🇴', color: '#93c5fd',
-                msg: `Lo que más me gusta es que no solo es sol y playa. Ha impulsado el turismo deportivo y gastronómico. Su visión desde que era Alcalde ha sido transformar espacios. Esa trayectoria de éxito es la que necesitamos para el 2028.`
+                id: 'bot-2', name: 'Carlos🇩🇴',
+                msg: `Lo que más me gusta es su visión desde la Alcaldía. Esa trayectoria es la que necesitamos para el 2028.`
             },
             {
-                id: 'bot-3', name: 'Ana María', color: '#fdba74',
-                msg: 'Totalmente. El compromiso de mejorar la seguridad turística y los malecones ha sido clave. David tiene esa visión de "Un Nuevo Comienzo" que conecta con nosotros en la diáspora.'
-            },
-            {
-                id: 'bot-4', name: 'Pedro Luis', color: '#c084fc',
-                msg: 'Como Ministro de Turismo, sus funciones han ido más allá de la promoción; ha creado alianzas público-privadas que funcionan de verdad. Es un líder que cumple promesas.'
+                id: 'bot-3', name: 'Ana María',
+                msg: 'David tiene esa visión de "Un Nuevo Comienzo" que conecta con nosotros en la diáspora.'
             }
         ]
 
-        let count = 0;
-        const interval = setInterval(() => {
-            if (count >= bots.length) {
-                clearInterval(interval);
-                return;
-            }
-            const b = bots[count];
-            setMessages(prev => {
-                const newMsg: Message = {
-                    id: `local-bot-${Date.now()}-${b.id}`,
-                    content: b.msg,
-                    created_at: new Date().toISOString(),
-                    user_id: b.id,
-                    room: currentRoom,
-                    user_name: b.name,
-                };
-                return [...prev, newMsg];
-            })
-            count++;
-        }, 3000)
-
-        return () => clearInterval(interval)
+        for (const b of bots) {
+            await supabase.from('messages').insert({
+                content: b.msg,
+                room: currentRoom,
+                user_id: b.id,
+                user_name: b.name
+            });
+            // Esperar un poco para que el orden cronológico sea claro
+            await new Promise(r => setTimeout(r, 500));
+        }
     }, [])
 
     useEffect(() => {
@@ -425,6 +410,17 @@ function ChatContent() {
         });
     }
 
+    const [roomTime, setRoomTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setRoomTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatRoomTime = (date: Date) => {
+        return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    };
+
     return (
         <div className={`chat-container ${isShaking ? 'shake-animation' : ''}`} style={{
             display: 'flex', gap: 0, flex: 1, minHeight: 400,
@@ -493,7 +489,12 @@ function ChatContent() {
                             <FiHash size={16} />
                         </div>
                         <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text-primary)' }}>{activeRoom}</div>
+                            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                {activeRoom}
+                                <span style={{ fontSize: 10, background: 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: 4, color: 'var(--text-muted)' }}>
+                                    🕒 LOCAL: {formatRoomTime(roomTime)}
+                                </span>
+                            </div>
                             <div style={{ fontSize: 10, color: 'var(--text-muted)' }} className="hide-mobile">
                                 {messages.length} mensajes
                             </div>

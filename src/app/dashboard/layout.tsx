@@ -23,6 +23,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [user, setUser] = useState<{ email?: string; user_metadata?: Record<string, string> } | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const pathname = usePathname()
+    const [currentTime, setCurrentTime] = useState(new Date())
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+        return () => clearInterval(timer)
+    }, [])
+
+    const formatLongDate = (date: Date) => {
+        return date.toLocaleDateString('es-ES', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }).toUpperCase();
+    }
 
     // Radio Store
     const { isPlaying, isLoading, error: radioError, setIsPlaying, setIsLoading, setError } = useRadioStore()
@@ -223,7 +240,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     flexShrink: 0, position: 'sticky', top: 0, width: '100%',
                     boxShadow: '0 4px 15px rgba(0,0,0,0.6)'
                 }}>
-                    <div style={{ position: 'absolute', top: 0, right: 10, fontSize: 10, color: '#00ff00', padding: '4px 10px', background: '#000', borderRadius: '0 0 8px 8px', fontWeight: 'bold', zIndex: 1200 }}>v1.9.0-STICKY</div>
+                    <div style={{ position: 'absolute', top: 0, right: 10, fontSize: 10, color: '#00ff00', padding: '4px 10px', background: '#000', borderRadius: '0 0 8px 8px', fontWeight: 'bold', zIndex: 1200, display: 'flex', gap: 15, alignItems: 'center' }}>
+                        <span style={{ color: '#fff' }}>{formatLongDate(currentTime)}</span>
+                        <span>v3.1.0-STABLE</span>
+                    </div>
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
                         background: 'none', border: 'none', color: 'var(--text-secondary)',
                         cursor: 'pointer', display: 'none'
