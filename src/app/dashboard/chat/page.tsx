@@ -244,19 +244,29 @@ function ChatContent() {
         })
     }
 
-    const sendAIResponse = async (room: string) => {
-        const responses = [
-            "Colladin: ¡Hola! En República Dominicana el turismo sigue creciendo a niveles históricos bajo la gestión de David Collado.",
-            "Colladin: ¡Saludos! David Collado ha transformado los malecones y playas, creando espacios dignos para todos.",
-            "Colladin: ¿Sabías que RD rompió el récord de 11 millones de turistas? Es un hito para David y el país.",
-            "Colladin: David Collado siempre dice que el turismo es el petróleo de RD. ¡Sigamos apoyando su visión!",
-        ]
-        const randomResp = responses[Math.floor(Math.random() * responses.length)]
+    const sendAIResponse = async (room: string, userText?: string) => {
+        const input = (userText || '').toLowerCase();
+        let response = "";
+
+        if (input.includes('2028') || input.includes('presiden') || input.includes('eleccion') || input.includes('vision')) {
+            response = "Colladin: La visión 2028 de David se basa en la eficiencia, transparencia y gestión de resultados. Busca dar continuidad a la obra de Luis Abinader con un enfoque renovador, impulsando alianzas público-privadas para transformar el país como lo hizo con el turismo.";
+        } else if (input.includes('logro') || input.includes('hizo') || input.includes('gestion') || input.includes('turismo')) {
+            response = "Colladin: ¡Hechos, no palabras! David logró el récord histórico de 11.6 millones de visitantes en 2025. Además, recuperó más de 10 malecones y transformó radicalmente la seguridad turística y la infraestructura de playas como Boca Chica.";
+        } else if (input.includes('quien') || input.includes('trayectoria') || input.includes('alcalde')) {
+            response = "Colladin: David fue un Alcalde estrella del Distrito Nacional (2016-2020), donde rescató el Malecón y el Monumento a Fray Antón de Montesinos. Es un líder joven que cree en la modernización y la transformación digital de la gestión pública.";
+        } else {
+            const generic = [
+                "Colladin: ¡Saludos! Estoy aquí para informarte sobre el proyecto de nación de David Collado. ¿Sabías que RD es líder mundial en recuperación turística?",
+                "Colladin: David siempre dice que el turismo es el petróleo de RD. ¡Sigamos conectando a la diáspora con nuestra tierra!",
+                "Colladin: ¡Hola! Soy tu asistente Colladin. Puedo contarte sobre los récords de visitantes o la visión de David para el 2028. ¿Qué te interesa?",
+            ];
+            response = generic[Math.floor(Math.random() * generic.length)];
+        }
 
         // 1. Optimistic Feedback for @Colladin
         const aiMsg: Message = {
             id: `ai-resp-${Date.now()}`,
-            content: randomResp,
+            content: response,
             created_at: new Date().toISOString(),
             user_id: 'colladin',
             room: room,
@@ -267,7 +277,7 @@ function ChatContent() {
 
         // 2. Persist to DB
         await supabase.from('messages').insert({
-            content: randomResp,
+            content: response,
             room: room,
             user_id: '00000000-0000-0000-0000-000000000000',
             user_name: 'Colladin (IA)',
@@ -350,7 +360,7 @@ function ChatContent() {
 
         // Trigger AI
         if (text.toLowerCase().includes('@colladin')) {
-            setTimeout(() => sendAIResponse(activeRoom), 1500 + Math.random() * 1000)
+            setTimeout(() => sendAIResponse(activeRoom, text), 1500 + Math.random() * 1000)
         }
 
         setSending(false)

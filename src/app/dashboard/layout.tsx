@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useRadioStore } from '@/lib/store'
 import {
-    FiMessageCircle, FiCalendar, FiLogOut,
+    FiMessageCircle, FiCalendar, FiLogOut, FiBarChart,
     FiMenu, FiX, FiBell, FiUsers, FiHome, FiRadio, FiPlayCircle, FiPauseCircle
 } from 'react-icons/fi'
 
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
     { href: '/dashboard', icon: <FiHome size={18} />, label: 'Inicio' },
     { href: '/dashboard/chat', icon: <FiMessageCircle size={18} />, label: 'Chats' },
     { href: '/dashboard/news', icon: <FiRadio size={18} />, label: 'Noticias' },
+    { href: '/dashboard/surveys', icon: <FiBarChart size={18} />, label: 'Encuestas' },
     { href: '/dashboard/events', icon: <FiCalendar size={18} />, label: 'Eventos' },
     { href: '/dashboard/members', icon: <FiUsers size={18} />, label: 'Miembros' },
 ]

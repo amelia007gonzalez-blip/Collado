@@ -18,24 +18,24 @@ interface NewsItem {
 
 const SAMPLE_NEWS: NewsItem[] = [
     {
-        id: '1', title: 'República Dominicana alcanza cifra récord de 10 millones de visitantes',
-        content: 'El ministro de Turismo, David Collado, informó que la República Dominicana logró la meta histórica de 10 millones de visitantes en un solo año, consolidando al país como líder turístico en la región.',
-        source: 'Listín Diario', link: 'https://listindiario.com/economia/2023/12/26/801550/republica-dominicana-alcanza-la-cifra-oficial-de-10-millones-de-visitantes.html', category: 'Turismo', created_at: new Date().toISOString(),
+        id: '1', title: 'David Collado proyecta visión de nación para el 2028',
+        content: 'Basado en su exitosa gestión en MITUR y la Alcaldía de Santo Domingo, David Collado se perfila como una figura clave para la continuidad del progreso, enfocándose en la eficiencia gubernamental y alianzas público-privadas.',
+        source: 'DavidCollado.com', link: 'https://davidcollado.com', category: 'Política', created_at: new Date().toISOString(),
     },
     {
-        id: '2', title: 'Mitur y David Collado promueven inversión turística dominicana en FITUR',
-        content: 'Durante la Feria Internacional de Turismo (FITUR) en Madrid, España, David Collado cerró importantes acuerdos con aerolíneas y turoperadores europeos para garantizar la conectividad aérea con República Dominicana.',
-        source: 'Diario Libre', link: 'https://www.diariolibre.com/economia/turismo/2024/01/24/david-collado-destaca-reuniones-de-inversion-en-fitur-2024/2587783', category: 'Política', created_at: new Date(Date.now() - 86400000).toISOString(),
+        id: '2', title: 'Récord histórico: República Dominicana recibe 11.6 millones de visitantes',
+        content: 'Bajo la dirección de David Collado, el país rompe récords internacionales de turismo en 2025, superando todas las expectativas y consolidándose como el motor económico de la región del Caribe.',
+        source: 'MITUR Oficial', link: 'https://www.mitur.gob.do/', category: 'Turismo', created_at: new Date(Date.now() - 3600000).toISOString(),
     },
     {
-        id: '3', title: 'David Collado anuncia millonaria inversión en malecones y playas',
-        content: 'El Ministerio de Turismo (Mitur) continuará el plan de recuperación de malecones y playas públicas en las principales provincias del país, reafirmando el compromiso con el turismo interno y esparcimiento seguro.',
-        source: 'El Nuevo Diario', link: 'https://elnuevodiario.com.do/', category: 'Desarrollo', created_at: new Date(Date.now() - 172800000).toISOString(),
+        id: '3', title: 'Plan de reordenamiento de Boca Chica inicia con éxito',
+        content: 'El Ministerio de Turismo comenzó la transformación integral de Boca Chica, incluyendo reordenamiento urbano y mejoras en la seguridad para los visitantes, como parte del plan estratégico de Collado.',
+        source: 'Presidencia RD', link: 'https://davidcollado.com', category: 'Desarrollo', created_at: new Date(Date.now() - 86400000).toISOString(),
     },
     {
-        id: '4', title: 'República Dominicana brilla en Europa como destino predilecto',
-        content: 'Campaña europea destaca la diversidad cultural y natural de la República Dominicana, logrando un aumento del 15% en reservas desde Francia, Alemania y España para la próxima temporada de invierno.',
-        source: 'MITUR Oficial', link: 'https://www.mitur.gob.do/', category: 'Eventos', created_at: new Date(Date.now() - 259200000).toISOString(),
+        id: '4', title: 'ONU Turismo premia la visión innovadora de David Collado',
+        content: 'Reconocimiento internacional destaca la gestión post-pandemia y el liderazgo de Collado, posicionándolo como el "Ministro de las Américas" por sus resultados tangibles en el sector.',
+        source: 'ONU Turismo', link: 'https://bohionews.com', category: 'Internacional', created_at: new Date(Date.now() - 172800000).toISOString(),
     },
 ]
 
