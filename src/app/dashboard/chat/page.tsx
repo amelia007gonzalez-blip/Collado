@@ -126,33 +126,35 @@ function ChatContent() {
     }, [])
 
     const loadMessages = useCallback(async () => {
-        const { data, error } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('room', activeRoom)
-            .order('created_at', { ascending: true })
-            .limit(100)
+        try {
+            const { data, error } = await supabase
+                .from('messages')
+                .select('*')
+                .eq('room', activeRoom)
+                .order('created_at', { ascending: true })
+                .limit(100)
 
-        // Fallback robusto en caso de que la tabla de Supabase no exista o tenga errores de RLS
-        if (error || !data || data.length === 0) {
-            console.warn("No se pudieron cargar mensajes desde Supabase o está vacía. Usando mensajes por defecto simulados.", error);
-            const defaultMessages: Message[] = [
-                { id: `demo-1-${activeRoom}`, content: `¡Bienvenidos a la sala ${activeRoom}!`, created_at: new Date(Date.now() - 3600000).toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' },
-                { id: `demo-2-${activeRoom}`, content: `Este espacio es para conectar a la diáspora. Por favor, mantengamos el respeto.`, created_at: new Date(Date.now() - 3500000).toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' }
-            ];
-            setMessages(defaultMessages);
+            if (error) throw error;
+            if (!data || data.length === 0) throw new Error("Empty messages array");
 
-            if (!greetedRooms.has(activeRoom)) {
-                loadCollaborators(activeRoom, defaultMessages);
-                setGreetedRooms(prev => new Set(prev).add(activeRoom));
-            }
-        } else {
             setMessages(data)
-            // Lanza los bots si hay pocos mensajes para que no se vea vacío
             if (data.length < 3 && !greetedRooms.has(activeRoom)) {
                 loadCollaborators(activeRoom, data);
             }
             setGreetedRooms(prev => new Set(prev).add(activeRoom));
+
+        } catch (err) {
+            console.warn("Usando mensajes por defecto simulados debido a error en base de datos:", err);
+            const defaultMessages: Message[] = [
+                { id: `demo-1-${activeRoom}`, content: `¡Bienvenidos a la sala ${activeRoom}!`, created_at: new Date(Date.now() - 3600000).toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' },
+                { id: `demo-2-${activeRoom}`, content: `Este espacio es para conectar a la diáspora. Por favor, mantengamos el respeto.`, created_at: new Date(Date.now() - 3500000).toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' }
+            ];
+
+            setMessages(defaultMessages);
+            if (!greetedRooms.has(activeRoom)) {
+                loadCollaborators(activeRoom, defaultMessages);
+                setGreetedRooms(prev => new Set(prev).add(activeRoom));
+            }
         }
     }, [activeRoom, loadCollaborators, greetedRooms])
 

@@ -216,7 +216,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <header className="mobile-header" style={{
                     padding: '16px 28px', borderBottom: '1px solid var(--border)',
                     display: 'flex', alignItems: 'center', gap: 16,
-                    background: 'var(--bg-secondary)', zIndex: 50
+                    background: 'var(--bg-secondary)', zIndex: 50,
+                    flexShrink: 0, position: 'relative'
                 }}>
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
                         background: 'none', border: 'none', color: 'var(--text-secondary)',
@@ -280,7 +281,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </header>
 
                 {/* Cintillos de Información */}
-                <div style={{ background: '#fefce8', borderBottom: '1px solid #fef3c7', padding: '4px 0', overflow: 'hidden' }}>
+                <div style={{ background: '#fefce8', borderBottom: '1px solid #fef3c7', padding: '4px 0', overflow: 'hidden', flexShrink: 0 }}>
                     <div className="ticker-wrap" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
                         <div className="ticker-item" style={{ fontSize: 11, fontWeight: 700, color: '#854d0e', padding: '0 20px', display: 'flex', alignItems: 'center', gap: 6 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eab308', color: 'white', width: 20, height: 20, borderRadius: '50%', flexShrink: 0, boxShadow: '0 0 5px rgba(234, 179, 8, 0.4)' }}>
@@ -290,7 +291,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </div>
                     </div>
                 </div>
-                <div style={{ background: 'var(--blue-primary)', color: 'white', padding: '6px 0', overflow: 'hidden' }}>
+                <div style={{ background: 'var(--blue-primary)', color: 'white', padding: '6px 0', overflow: 'hidden', flexShrink: 0 }}>
                     <div className="ticker-news" style={{ display: 'flex', whiteSpace: 'nowrap' }}>
                         <div className="ticker-content" style={{ fontSize: 13, fontWeight: 500, padding: '0 40px' }}>
                             🇩🇴 ÚLTIMAS NOTICIAS: David Collado reconocido como "Ministro de Las Américas" por ONU Turismo • RD alcanza cifra récord de 11 millones de visitantes • Se proyecta un crecimiento histórico para el sector turístico en 2025 • Inauguración de nuevos malecones y playas públicas en todo el país • Presidente Abinader destaca el papel de la diáspora en el desarrollo nacional.
