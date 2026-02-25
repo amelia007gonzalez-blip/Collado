@@ -156,11 +156,12 @@ function ChatContent() {
             }
             setGreetedRooms(prev => new Set(prev).add(activeRoom));
 
-        } catch (err) {
-            console.warn("Usando mensajes por defecto simulados debido a error en base de datos:", err);
+        } catch (err: any) {
+            console.warn("Error en base de datos:", err);
+            const errorMsg = err.message || "Error desconocido";
             const defaultMessages: Message[] = [
-                { id: `demo-1-${activeRoom}`, content: `¡Bienvenidos a la sala ${activeRoom}!`, created_at: new Date(Date.now() - 3600000).toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' },
-                { id: `demo-2-${activeRoom}`, content: `Este espacio es para conectar a la diáspora. Por favor, mantengamos el respeto.`, created_at: new Date(Date.now() - 3500000).toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' }
+                { id: `demo-1-${activeRoom}`, content: `⚠️ ERROR DB: ${errorMsg}`, created_at: new Date().toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' },
+                { id: `demo-2-${activeRoom}`, content: `¡Bienvenidos a ${activeRoom}! (Modo Offline)`, created_at: new Date(Date.now() - 3600000).toISOString(), user_id: 'system', room: activeRoom, user_name: 'Sistema' }
             ];
 
             setMessages(defaultMessages);
@@ -516,8 +517,9 @@ function ChatContent() {
                         backgroundBlendMode: 'overlay',
                         scrollbarWidth: 'thin'
                     }}>
-                    <div style={{ padding: '4px 12px', background: 'rgba(0,0,0,0.05)', borderRadius: 8, fontSize: 10, alignSelf: 'center', marginBottom: 10 }}>
-                        DIAGNÓSTICO: {messages.length} mensajes cargados en sala {activeRoom}
+                    {/* BARRA DE DIAGNÓSTICO ULTRA VISIBLE */}
+                    <div style={{ padding: '6px 12px', background: '#000', color: '#00ff00', borderRadius: 8, fontSize: 11, alignSelf: 'center', marginBottom: 15, border: '1px solid #00ff00', fontFamily: 'monospace', fontWeight: 'bold' }}>
+                        DEBUG v1.8.0 | MSGS: {messages.length} | USER: {userName || 'NONE'} ({userId ? 'AUTHED' : 'GUEST'}) | ROOM: {activeRoom}
                     </div>
 
                     {messages.length === 0 && (
@@ -536,18 +538,20 @@ function ChatContent() {
                                 marginBottom: 4
                             }}>
                                 <div style={{
-                                    maxWidth: '80%',
-                                    padding: '10px 14px',
-                                    borderRadius: 16,
+                                    maxWidth: '85%',
+                                    padding: '8px 12px',
+                                    borderRadius: 12,
                                     background: isOwn ? '#DCF8C6' : '#FFFFFF',
                                     color: '#111',
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
                                     display: 'flex',
-                                    flexDirection: 'column'
+                                    flexDirection: 'column',
+                                    position: 'relative',
+                                    animation: 'msgAppear 0.3s ease-out'
                                 }}>
-                                    {!isOwn && <div style={{ fontWeight: 800, fontSize: 12, color: '#075E54', marginBottom: 2 }}>{msg.user_name}</div>}
-                                    <div style={{ fontSize: 14 }}>{msg.content}</div>
-                                    <div style={{ fontSize: 9, color: '#999', alignSelf: 'flex-end', marginTop: 4 }}>
+                                    {!isOwn && <div style={{ fontWeight: 800, fontSize: 11, color: '#075E54', marginBottom: 2 }}>{msg.user_name}</div>}
+                                    <div style={{ fontSize: 13, lineHeight: '1.4' }}>{msg.content}</div>
+                                    <div style={{ fontSize: 9, color: '#999', alignSelf: 'flex-end', marginTop: 2 }}>
                                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                 </div>
@@ -632,6 +636,10 @@ function ChatContent() {
                     20%, 80% { transform: translate3d(2px, 0, 0); }
                     30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
                     40%, 60% { transform: translate3d(4px, 0, 0); }
+                }
+                @keyframes msgAppear {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
                 .show-mobile { display: none; } /* Hidden by default */
                 @media (max-width: 768px) {

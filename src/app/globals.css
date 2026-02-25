@@ -209,8 +209,8 @@ body {
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 16px;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-card);
 }
@@ -226,11 +226,11 @@ body {
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 10px;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
@@ -274,13 +274,13 @@ body {
 /* =================== INPUTS =================== */
 .input {
   width: 100%;
-  padding: 14px 16px;
+  padding: 10px 14px;
   background: var(--bg-input);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
-  font-size: 15px;
+  font-size: 13px;
   transition: all 0.3s ease;
   outline: none;
 }

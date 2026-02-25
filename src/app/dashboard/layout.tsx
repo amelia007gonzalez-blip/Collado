@@ -215,15 +215,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Main */}
             <div className={`main-content ${sidebarOpen ? 'shifted' : ''}`}>
-                {/* Top bar */}
                 <header className="app-header" style={{
-                    height: 54, minHeight: 54, padding: '0 20px', borderBottom: '2px solid #ce1126',
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    background: 'var(--bg-secondary)', zIndex: 105,
+                    height: 50, minHeight: 50, padding: '0 16px', borderBottom: '3px solid #ff0000',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    background: '#0f172a', zIndex: 1000,
                     flexShrink: 0, position: 'relative', width: '100%',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.5)'
                 }}>
-                    <div style={{ position: 'absolute', top: 0, right: 0, fontSize: 8, color: '#666', padding: '2px 4px' }}>v1.7.0c</div>
+                    <div style={{ position: 'absolute', top: -10, right: 10, fontSize: 10, color: '#00ff00', padding: '2px 8px', background: '#000', borderRadius: '4px', fontWeight: 'bold' }}>VERSION ACTIVA: v1.8.0</div>
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
                         background: 'none', border: 'none', color: 'var(--text-secondary)',
                         cursor: 'pointer', display: 'none'
@@ -247,22 +246,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </button>
 
                         <button onClick={toggleRadio} title="Radio Dominicana Online" style={{
-                            background: isPlaying ? '#ef4444' : '#CE1126',
-                            border: '1px solid white',
-                            color: 'white',
-                            padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 12,
-                            transition: 'all 0.3s',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                            background: isPlaying ? '#ff0000' : '#CE1126',
+                            border: '2px solid #fff',
+                            color: '#fff',
+                            padding: '4px 12px', borderRadius: 20, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: 5, fontWeight: 900, fontSize: 11,
+                            transition: 'all 0.2s',
+                            boxShadow: '0 0 15px rgba(255,0,0,0.4)',
+                            transform: 'scale(1.1)',
+                            animation: isPlaying ? 'pulse-heavy 1.5s infinite' : 'none'
                         }}
                             className={isPlaying ? "radio-playing" : ""}
                         >
                             {isLoading ? (
-                                <div className="animate-spin-slow" style={{ width: 14, height: 14, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
+                                <div className="animate-spin-slow" style={{ width: 12, height: 12, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
                             ) : (
-                                isPlaying ? <FiPauseCircle size={18} /> : <FiPlayCircle size={18} />
+                                isPlaying ? <FiPauseCircle size={16} /> : <FiPlayCircle size={16} />
                             )}
-                            <span style={{ letterSpacing: '0.5px' }}>
+                            <span style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                                 {isLoading ? '...' : (isPlaying ? 'EN VIVO' : 'RADIO 🇩🇴')}
                             </span>
                         </button>
@@ -341,6 +342,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        @keyframes pulse-heavy {
+            0% { transform: scale(1.1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { transform: scale(1.15); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { transform: scale(1.1); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
         }
         .animate-spin-slow {
             animation: spin 3s linear infinite;
