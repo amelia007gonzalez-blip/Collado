@@ -410,6 +410,21 @@ function ChatContent() {
         });
     }
 
+    const ROOM_TIMEZONES: Record<string, string> = {
+        'General': 'Europe/Madrid',
+        'España': 'Europe/Madrid',
+        'Francia': 'Europe/Paris',
+        'Italia': 'Europe/Rome',
+        'Alemania': 'Europe/Berlin',
+        'Suiza': 'Europe/Zurich',
+        'Reino Unido': 'Europe/London',
+        'Portugal': 'Europe/Lisbon',
+        'Países Bajos': 'Europe/Amsterdam',
+        'Bélgica': 'Europe/Brussels',
+        'Rep. Checa': 'Europe/Prague',
+        'La Sala del Junte': 'America/Santo_Domingo' // El Junte es con horario dominicano por defecto
+    };
+
     const [roomTime, setRoomTime] = useState(new Date());
 
     useEffect(() => {
@@ -418,7 +433,13 @@ function ChatContent() {
     }, []);
 
     const formatRoomTime = (date: Date) => {
-        return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const tz = ROOM_TIMEZONES[activeRoom] || 'Europe/Madrid';
+        return date.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            timeZone: tz
+        });
     };
 
     return (
@@ -634,6 +655,16 @@ function ChatContent() {
                                 }}>
                                     {!isOwn && <div style={{ fontWeight: 800, fontSize: 11, color: '#075E54', marginBottom: 2 }}>{msg.user_name}</div>}
                                     <div style={{ fontSize: 13, lineHeight: '1.4' }}>{msg.content}</div>
+                                    {msg.media_url && (
+                                        <div style={{ marginTop: 6, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.05)' }}>
+                                            <img
+                                                src={msg.media_url}
+                                                alt="Shared media"
+                                                style={{ maxWidth: '100%', display: 'block', borderRadius: 8, cursor: 'pointer' }}
+                                                onClick={() => window.open(msg.media_url, '_blank')}
+                                            />
+                                        </div>
+                                    )}
                                     <div style={{ fontSize: 9, color: '#999', alignSelf: 'flex-end', marginTop: 2 }}>
                                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
@@ -651,6 +682,9 @@ function ChatContent() {
                     position: 'relative',
                     borderTop: '1px solid #ddd'
                 }}>
+                    <div style={{ fontSize: 9, color: '#999', textAlign: 'center', marginBottom: 4, fontWeight: 'bold' }}>
+                        🕒 Los mensajes e imágenes se limpian semanalmente para mayor fluidez.
+                    </div>
                     {showEmojis && (
                         <div style={{
                             position: 'absolute', bottom: '100%', left: 10, marginBottom: 8,
@@ -678,7 +712,7 @@ function ChatContent() {
 
                             <button type="button" onClick={() => fileInputRef.current?.click()} style={{
                                 background: 'none', border: 'none', color: uploadingImage ? '#ccc' : '#666', cursor: 'pointer', padding: 6
-                            }} disabled={uploadingImage} className="hide-mobile">
+                            }} disabled={uploadingImage}>
                                 <FiImage size={22} className={uploadingImage ? "animate-pulse" : ""} />
                             </button>
                         </div>
